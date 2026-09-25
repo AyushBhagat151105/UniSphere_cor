@@ -1,0 +1,140 @@
+enum EventCategory {
+  WORKSHOP
+  SEMINAR
+  CULTURAL
+  COMPETITION
+  FEST
+  CLASS_ACTIVITY
+}
+
+enum EventScopeLevel {
+  CLASS
+  DEPARTMENT
+  UNIVERSITY
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum RegistrationStatus {
+  CONFIRMED
+  ATTENDED
+  CANCELLED
+}
+
+type MediaGalleryItem {
+  url         String
+  publicId    String
+  aspectRatio String  @default("4:5")
+  caption     String?
+}
+
+type EventPosterAndMedia {
+  posterUrl     String
+  galleryImages MediaGalleryItem[]
+}
+
+type EventScopeConfig {
+  scopeLevel           EventScopeLevel
+  targetDepartmentIds  String[]        @default([]) @db.ObjectId
+  targetBranches       String[]        @default([])
+  targetBatchYears     Int[]           @default([])
+  targetClassDivisions String[]        @default([])
+}
+
+type EventCustomField {
+  key      String
+  label    String
+  type     String   @default("TEXT")
+  options  String[] @default([])
+  required Boolean  @default(false)
+}
+
+type EventFormConfig {
+  autofillFields String[]           @default(["name", "email", "phone", "enrollmentNo", "department", "branch", "batchYear", "classDivision"])
+  customFields   EventCustomField[]
+}
+
+type ParticipantSnapshot {
+  name           String
+  email          String
+  phone          String
+  enrollmentNo   String
+  departmentCode String
+  branch         String
+  batchYear      Int
+  classDivision  String
+}
+
+type QrPass {
+  ticketCode      String
+  qrSignature     String
+  qrPayload       String
+  mobileDelivered Boolean   @default(true)
+  emailSentAt     DateTime?
+  emailStatus     String    @default("SENT")
+}
+
+type AttendanceRecord {
+  isPresent   Boolean   @default(false)
+  checkedInAt DateTime?
+  scannedBy   String?   @db.ObjectId
+  entryMethod String?
+}
+
+model Event {
+  id                   String              @id @default(auto()) @map("_id") @db.ObjectId
+  universityId         String              @db.ObjectId
+  departmentId         String?             @db.ObjectId
+  clubId               String?             @db.ObjectId
+  title                String
+  slug                 String
+  shortCaption         String
+  description          String
+  category             EventCategory
+  posterAndMedia       EventPosterAndMedia
+  scopeConfig          EventScopeConfig
+  venue                String
+  startTime            DateTime
+  endTime              DateTime
+  registrationDeadline DateTime
+  maxCapacity          Int?
+  formConfig           EventFormConfig
+  authorizedScannerIds String[]            @default([]) @db.ObjectId
+  registeredCount      Int                 @default(0)
+  attendedCount        Int                 @default(0)
+  likesCount           Int                 @default(0)
+  bookmarksCount       Int                 @default(0)
+  status               EventStatus         @default(PUBLISHED)
+  createdBy            String              @db.ObjectId
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  @@index([universityId, status, startTime])
+  @@index([departmentId, status])
+  @@map("events")
+}
+
+model EventRegistration {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  eventId             String              @db.ObjectId
+  universityId        String              @db.ObjectId
+  departmentId        String              @db.ObjectId
+  studentId           String              @db.ObjectId
+  participantSnapshot ParticipantSnapshot
+  customFieldAnswers  Json?
+  qrPass              QrPass
+  attendance          AttendanceRecord
+  status              RegistrationStatus  @default(CONFIRMED)
+  registeredAt        DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@unique([eventId, studentId])
+  @@index([eventId, status])
+  @@map("event_registrations")
+}

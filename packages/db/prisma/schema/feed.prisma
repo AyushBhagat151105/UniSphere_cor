@@ -1,0 +1,70 @@
+enum FeedPostType {
+  EVENT_POSTER
+  PHOTO_CAROUSEL
+  CLUB_ANNOUNCEMENT
+  EVENT_HIGHLIGHT
+}
+
+enum InteractionType {
+  LIKE
+  BOOKMARK
+  COMMENT
+}
+
+type FeedMetrics {
+  likesCount     Int @default(0)
+  commentsCount  Int @default(0)
+  bookmarksCount Int @default(0)
+}
+
+model FeedPost {
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  universityId  String             @db.ObjectId
+  departmentId  String?            @db.ObjectId
+  clubId        String?            @db.ObjectId
+  linkedEventId String?            @db.ObjectId
+  authorId      String             @db.ObjectId
+  authorBadge   String
+  postType      FeedPostType
+  mediaItems    MediaGalleryItem[]
+  caption       String
+  hashtags      String[]           @default([])
+  scopeConfig   EventScopeConfig
+  metrics       FeedMetrics
+  isPinned      Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([universityId, createdAt])
+  @@index([departmentId, createdAt])
+  @@map("feed_posts")
+}
+
+model PostInteraction {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  postId      String          @db.ObjectId
+  userId      String          @db.ObjectId
+  type        InteractionType
+  commentBody String?
+  createdAt   DateTime        @default(now())
+
+  @@index([postId, type])
+  @@index([userId, type])
+  @@map("post_interactions")
+}
+
+model Notification {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  universityId String   @db.ObjectId
+  type         String
+  title        String
+  body         String
+  thumbnailUrl String?
+  actionUrl    String?
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([userId, isRead, createdAt])
+  @@map("notifications")
+}

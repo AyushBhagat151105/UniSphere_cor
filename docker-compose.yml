@@ -38,8 +38,13 @@ services:
       - UniSphere_cor-network
 
   db:
-    image: mongo:7
+    image: mongo:8.0.4
     container_name: UniSphere_cor-mongodb
+    environment:
+      GLIBC_TUNABLES: "glibc.pthread.rseq=0"
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: UniSphere_cor
     ports:
       - "27017:27017"
     volumes:

@@ -1,0 +1,40 @@
+type PlacementEligibility {
+  allowedBranches String[]
+  minCgpa         Float
+  batchYear       Int
+}
+
+model AlumniMentorship {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  universityId   String   @db.ObjectId
+  departmentId   String   @db.ObjectId
+  alumniUserId   String   @db.ObjectId
+  title          String
+  topic          String
+  companyName    String
+  linkedEventId  String?  @db.ObjectId
+  availableSlots Int      @default(20)
+  status         String   @default("OPEN")
+  createdAt      DateTime @default(now())
+
+  @@index([universityId, departmentId])
+  @@map("alumni_mentorships")
+}
+
+model PlacementDrive {
+  id                  String               @id @default(auto()) @map("_id") @db.ObjectId
+  universityId        String               @db.ObjectId
+  departmentId        String               @db.ObjectId
+  companyName         String
+  jobTitle            String
+  packageLPA          Float
+  description         String
+  eligibility         PlacementEligibility
+  applicationDeadline DateTime
+  createdBy           String               @db.ObjectId
+  status              String               @default("OPEN")
+  createdAt           DateTime             @default(now())
+
+  @@index([universityId, departmentId])
+  @@map("placement_drives")
+}

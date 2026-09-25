@@ -2,9 +2,20 @@ name: UniSphere_cor
 
 services:
   mongodb:
-    image: mongo
+    image: mongo:8.0.4
     container_name: UniSphere_cor-mongodb
+    command:
+      - bash
+      - -c
+      - |
+        if [ ! -f /data/configdb/mongo-keyfile ]; then
+          openssl rand -base64 756 > /data/configdb/mongo-keyfile
+          chmod 400 /data/configdb/mongo-keyfile
+          chown 999:999 /data/configdb/mongo-keyfile
+        fi
+        exec docker-entrypoint.sh mongod --replSet rs0 --keyFile /data/configdb/mongo-keyfile --bind_ip_all
     environment:
+      GLIBC_TUNABLES: "glibc.pthread.rseq=0"
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
       MONGO_INITDB_DATABASE: UniSphere_cor
@@ -12,12 +23,27 @@ services:
       - "27017:27017"
     volumes:
       - UniSphere_cor_mongodb_data:/data/db
+      - UniSphere_cor_mongodb_config:/data/configdb
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "-u",
+          "root",
+          "-p",
+          "password",
+          "--authenticationDatabase",
+          "admin",
+          "--quiet",
+          "--eval",
+          "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }).ok }",
+        ]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
     restart: unless-stopped
 
 volumes:
   UniSphere_cor_mongodb_data:
+  UniSphere_cor_mongodb_config:

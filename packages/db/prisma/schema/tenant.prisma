@@ -1,0 +1,42 @@
+type UniversityLocation {
+  city    String
+  state   String
+  country String @default("India")
+}
+
+model University {
+  id        String             @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  shortName String
+  code      String             @unique
+  domain    String
+  logoUrl   String?
+  location  UniversityLocation
+  adminIds  String[]           @default([]) @db.ObjectId
+  isActive  Boolean            @default(true)
+  createdBy String?            @db.ObjectId
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([isActive])
+  @@map("universities")
+}
+
+model Department {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  universityId   String   @db.ObjectId
+  name           String
+  code           String
+  logoUrl        String?
+  branches       String[] @default(["BCA", "MCA", "B.Sc(IT)", "M.Sc(IT)"])
+  availableYears Int[]    @default([1, 2, 3, 4])
+  adminIds       String[] @default([]) @db.ObjectId
+  isActive       Boolean  @default(true)
+  createdBy      String?  @db.ObjectId
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([universityId, code])
+  @@index([universityId, isActive])
+  @@map("departments")
+}

@@ -1,0 +1,66 @@
+enum ClubCategory {
+  CULTURAL
+  ARTS
+  TECHNICAL
+  SPORTS
+  LITERARY
+  SOCIAL
+}
+
+enum ClubMemberRole {
+  MEMBER
+  CORE_COMMITTEE
+  STUDENT_REP_ADMIN
+}
+
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  LEFT
+}
+
+model Club {
+  id                      String       @id @default(auto()) @map("_id") @db.ObjectId
+  universityId            String       @db.ObjectId
+  departmentId            String?      @db.ObjectId
+  name                    String
+  slug                    String
+  category                ClubCategory
+  description             String
+  logoUrl                 String?
+  bannerUrl               String?
+  facultyAdminIds         String[]     @default([]) @db.ObjectId
+  studentRepAdminIds      String[]     @default([]) @db.ObjectId
+  memberCount             Int          @default(0)
+  isAcceptingApplications Boolean      @default(true)
+  isActive                Boolean      @default(true)
+  createdBy               String       @db.ObjectId
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+
+  @@unique([universityId, slug])
+  @@index([universityId, departmentId, category])
+  @@map("clubs")
+}
+
+model ClubMembership {
+  id                String           @id @default(auto()) @map("_id") @db.ObjectId
+  clubId            String           @db.ObjectId
+  universityId      String           @db.ObjectId
+  departmentId      String           @db.ObjectId
+  studentId         String           @db.ObjectId
+  memberRole        ClubMemberRole   @default(MEMBER)
+  applicationReason String?
+  portfolioLink     String?
+  status            MembershipStatus @default(PENDING)
+  reviewedBy        String?          @db.ObjectId
+  reviewedAt        DateTime?
+  joinedAt          DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([clubId, studentId])
+  @@index([clubId, status])
+  @@map("club_memberships")
+}

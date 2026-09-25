@@ -1,0 +1,120 @@
+enum UserRole {
+  SUPER_ADMIN
+  UNIVERSITY_ADMIN
+  DEPARTMENT_ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum DevicePlatform {
+  WEB
+  ANDROID
+  IOS
+}
+
+type StudentProfile {
+  enrollmentNo   String
+  branch         String
+  batchYear      Int
+  semester       Int
+  classDivision  String
+  cgpa           Float?
+  skills         String[] @default([])
+  resumeUrl      String?
+  isAlumni       Boolean  @default(false)
+  graduationYear Int?
+  currentCompany String?
+}
+
+type TeacherProfile {
+  employeeId  String
+  designation String
+  cabinNo     String?
+}
+
+type UserClubRoles {
+  facultyAdminClubIds String[] @default([]) @db.ObjectId
+  studentRepClubIds   String[] @default([]) @db.ObjectId
+}
+
+type DeviceMetadata {
+  deviceId      String
+  deviceName    String
+  platform      DevicePlatform
+  ipAddress     String
+  userAgent     String
+  expoPushToken String?
+}
+
+type CsvImportSummary {
+  totalRows    Int
+  createdCount Int
+  updatedCount Int
+  failedCount  Int
+}
+
+type CsvRowError {
+  rowNumber     Int
+  rawIdentifier String
+  errorMessages String[]
+}
+
+model User {
+  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
+  universityId       String?         @db.ObjectId
+  departmentId       String?         @db.ObjectId
+  role               UserRole
+  name               String
+  email              String          @unique
+  phone              String
+  avatarUrl          String?
+  passwordHash       String
+  mustChangePassword Boolean         @default(true)
+  isActive           Boolean         @default(true)
+  studentProfile     StudentProfile?
+  teacherProfile     TeacherProfile?
+  clubRoles          UserClubRoles
+  importBatchId      String?         @db.ObjectId
+  provisionedBy      String?         @db.ObjectId
+  lastLoginAt        DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@index([universityId, role])
+  @@index([departmentId, role])
+  @@map("users")
+}
+
+model UserSession {
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String         @db.ObjectId
+  universityId     String?        @db.ObjectId
+  refreshTokenHash String         @unique
+  deviceMetadata   DeviceMetadata
+  lastActiveAt     DateTime       @default(now())
+  expiresAt        DateTime
+  isRevoked        Boolean        @default(false)
+  revokedAt        DateTime?
+  revokedReason    String?
+  createdAt        DateTime       @default(now())
+
+  @@index([userId, isRevoked])
+  @@map("user_sessions")
+}
+
+model CsvImportBatch {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  universityId String           @db.ObjectId
+  departmentId String           @db.ObjectId
+  uploadedBy   String           @db.ObjectId
+  importType   String
+  fileName     String
+  summary      CsvImportSummary
+  rowErrors    CsvRowError[]
+  status       String           @default("COMPLETED")
+  createdAt    DateTime         @default(now())
+  completedAt  DateTime?
+
+  @@index([departmentId, createdAt])
+  @@map("csv_import_batches")
+}

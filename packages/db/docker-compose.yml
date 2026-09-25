@@ -1,0 +1,23 @@
+name: UniSphere_cor
+
+services:
+  mongodb:
+    image: mongo
+    container_name: UniSphere_cor-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: UniSphere_cor
+    ports:
+      - "27017:27017"
+    volumes:
+      - UniSphere_cor_mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  UniSphere_cor_mongodb_data:

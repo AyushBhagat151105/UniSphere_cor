@@ -1,0 +1,60 @@
+{
+  "name": "UniSphere_cor",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalog": {
+      "dotenv": "^17.4.2",
+      "zod": "^4.4.3",
+      "typescript": "^6.0.3",
+      "@types/bun": "^1.4.0",
+      "vitest": "4.1.8",
+      "@vitest/ui": "4.1.8",
+      "@vitest/coverage-v8": "4.1.8",
+      "jsdom": "^29.1.1",
+      "@tanstack/react-form": "^1.33.0",
+      "react": "19.2.8",
+      "react-dom": "19.2.8",
+      "@tanstack/react-query": "^5.101.4",
+      "zustand": "^5.0.15",
+      "socket.io-client": "^4.8.3",
+      "motion": "^12.43.0",
+      "@types/react": "^19.2.18",
+      "@prisma/client": "6.19.0"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:web": "turbo -F web dev",
+    "dev:native": "turbo -F native dev",
+    "dev:server": "turbo -F server dev",
+    "db:push": "turbo -F @UniSphere_cor/db db:push",
+    "db:studio": "turbo -F @UniSphere_cor/db db:studio",
+    "db:generate": "turbo -F @UniSphere_cor/db db:generate",
+    "db:migrate": "turbo -F @UniSphere_cor/db db:migrate",
+    "db:start": "turbo -F @UniSphere_cor/db db:start",
+    "db:watch": "turbo -F @UniSphere_cor/db db:watch",
+    "db:stop": "turbo -F @UniSphere_cor/db db:stop",
+    "db:down": "turbo -F @UniSphere_cor/db db:down",
+    "test": "bun run --filter web test && bun run --filter server test",
+    "ruler:apply": "bunx @intellectronica/ruler@latest apply --local-only"
+  },
+  "dependencies": {
+    "@UniSphere_cor/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@UniSphere_cor/config": "workspace:*",
+    "@types/bun": "catalog:",
+    "turbo": "2.10.11",
+    "typescript": "catalog:"
+  },
+  "packageManager": "bun@1.4.0"
+}

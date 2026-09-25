@@ -1,0 +1,61 @@
+# Docker Compose for UniSphere_cor
+# Full-stack container orchestration
+
+name: UniSphere_cor
+
+services:
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: UniSphere_cor-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://server:3001
+    restart: unless-stopped
+    depends_on:
+      - server
+    networks:
+      - UniSphere_cor-network
+
+  server:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+    container_name: UniSphere_cor-server
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=mongodb://db:27017/UniSphere_cor
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - UniSphere_cor-network
+
+  db:
+    image: mongo:7
+    container_name: UniSphere_cor-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - UniSphere_cor_mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - UniSphere_cor-network
+
+networks:
+  UniSphere_cor-network:
+    driver: bridge
+
+volumes:
+  UniSphere_cor_mongodb_data:

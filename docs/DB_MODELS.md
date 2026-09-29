@@ -107,6 +107,7 @@ Unified identity collection across all 5 tiers. Public signup is disabled; Teach
 | `studentProfile` | `StudentProfile?` | Embedded Composite Type | Populated for `STUDENT`: `{ enrollmentNo: "24BCA045", branch: "BCA", batchYear: 2, semester: 3, classDivision: "BCA-Sem3-DivA", cgpa?: 8.6, skills?: string[], resumeUrl?: string, isAlumni: false, graduationYear?: number, currentCompany?: string }` |
 | `teacherProfile` | `TeacherProfile?` | Embedded Composite Type | Populated for `TEACHER`: `{ employeeId: "EMP-CMP-104", designation: "Assistant Professor", cabinNo?: "C-204" }` |
 | `clubRoles` | `UserClubRoles` | Embedded Composite Type | `{ facultyAdminClubIds: ObjectId[], studentRepClubIds: ObjectId[] }` — powers `ClubCoAdminGuard` |
+| `audienceMemberships` | `String[]` | Default `[]` | Pre-computed 3-scope audience tags stamped at CSV import. Format: `'{universityCode}:{deptCode}:{branch}:{batchYear}:{classDivision}'`. A student in BCA Sem3 DivA gets `["CHARUSAT:CMPICA:BCA:2:BCA-Sem3-DivA", "CHARUSAT:CMPICA:*", "CHARUSAT:*"]`. Enables O(1) `hasSome` array-intersection feed and event queries — no `$or` fan-out. |
 | `importBatchId` | `ObjectId?` | Ref -> `CsvImportBatch` | CSV batch that provisioned or last updated this user |
 | `provisionedBy` | `ObjectId?` | Ref -> `User` | Admin who imported/created the account |
 | `lastLoginAt` | `DateTime?` | Optional | Timestamp of latest login |
@@ -114,7 +115,7 @@ Unified identity collection across all 5 tiers. Public signup is disabled; Teach
 
 - **Indexes**:
   - `{ email: 1 } (unique)`
-  - `{ universityId: 1, "studentProfile.enrollmentNo": 1 } (unique, sparse)`
+  - `{ universityId: 1, "studentProfile.enrollmentNo": 1 } (unique, sparse, partialFilterExpression: { role: "STUDENT" })` — created via `bun run db:indexes` (`packages/db/src/setup-indexes.ts`) since Prisma MongoDB cannot express partial unique indexes in schema DSL.
   - `{ departmentId: 1, role: 1, "studentProfile.branch": 1, "studentProfile.batchYear": 1, "studentProfile.classDivision": 1 }`
 
 ---
@@ -183,6 +184,8 @@ Campus clubs (e.g., **Garba Club**, **Drawing Club**, **CHARUSAT Dev Club**) sup
 
 - **Indexes**: `{ universityId: 1, slug: 1 } (unique)`, `{ universityId: 1, departmentId: 1, category: 1 }`.
 
+> **ClubCoAdminGuard — Single Source of Truth**: `Club.facultyAdminIds[]` and `Club.studentRepAdminIds[]` are the **only** authority for club co-admin authorization. The previously planned `User.clubRoles` embedded array has been removed to eliminate dual-write desync. The guard performs a targeted `clubs` collection lookup (`SELECT facultyAdminIds, studentRepAdminIds WHERE _id = clubId`) cached in Redis at `club:co-admins:{clubId}` with a 60-second TTL for hot-path efficiency.
+
 ---
 
 ### Collection 7: `club_memberships` (`ClubMembership` Model)
@@ -222,6 +225,7 @@ Core event entity supporting `CLASS`, `DEPARTMENT`, and `UNIVERSITY` scopes, swi
 | `category` | `EventCategory` | `'WORKSHOP' \| 'SEMINAR' \| 'CULTURAL' \| 'COMPETITION' \| 'FEST' \| 'CLASS_ACTIVITY'` | Event classification |
 | `posterAndMedia` | `EventMedia` | Embedded `{ posterUrl: string, galleryImages: [{ url, publicId, aspectRatio: '4:5'\|'1:1'\|'16:9', caption? }] }` | High-res primary poster + up to 10 carousel slides |
 | `scopeConfig` | `EventScopeConfig` | Embedded `{ scopeLevel: 'CLASS' \| 'DEPARTMENT' \| 'UNIVERSITY', targetDepartmentIds: ObjectId[], targetBranches: string[], targetBatchYears: number[], targetClassDivisions: string[] }` | 3-Tier visibility and registration eligibility engine |
+| `resolvedAudienceTags` | `String[]` | Default `[]` | Pre-computed audience tags resolved from `scopeConfig` at event creation time. Used for feed and event list queries via `hasSome` against `User.audienceMemberships`. Format mirrors user tags: `"CHARUSAT:CMPICA:BCA:2:BCA-Sem3-DivA"` / `"CHARUSAT:CMPICA:*"` / `"CHARUSAT:*"`. |
 | `venue` | `String` | Required | Physical auditorium/lab/ground or online URL |
 | `startTime` / `endTime` | `DateTime` | Required | Event start and end timestamps |
 | `registrationDeadline` | `DateTime` | Required | Cutoff for student 1-click registration |
@@ -279,6 +283,7 @@ Powers the scrollable campus poster feed on Web and Mobile with swipeable multi-
 | `caption` | `String` | Required | Instagram-style caption & expandable event description |
 | `hashtags` | `String[]` | Default `[]` | Searchable campus hashtags |
 | `scopeConfig` | `EventScopeConfig` | Embedded 3-Scope filter | Controls feed visibility (`CLASS`, `DEPARTMENT`, `UNIVERSITY`) |
+| `resolvedAudienceTags` | `String[]` | Default `[]` | Pre-computed audience tags resolved from `scopeConfig` at post creation time. Same format as `Event.resolvedAudienceTags`. Enables single `hasSome` query against `User.audienceMemberships` for the scoped poster feed. |
 | `metrics` | `FeedMetrics` | Embedded `{ likesCount, commentsCount, bookmarksCount }` | Denormalized interaction counters |
 | `isPinned` | `Boolean` | Default `false` | Pinned at top of department/university feed |
 | `createdAt` / `updatedAt` | `DateTime` | Auto timestamps | Publication timestamps |

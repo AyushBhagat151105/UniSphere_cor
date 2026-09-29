@@ -32,11 +32,6 @@ type TeacherProfile {
   cabinNo     String?
 }
 
-type UserClubRoles {
-  facultyAdminClubIds String[] @default([]) @db.ObjectId
-  studentRepClubIds   String[] @default([]) @db.ObjectId
-}
-
 type DeviceMetadata {
   deviceId      String
   deviceName    String
@@ -73,7 +68,7 @@ model User {
   isActive           Boolean         @default(true)
   studentProfile     StudentProfile?
   teacherProfile     TeacherProfile?
-  clubRoles          UserClubRoles
+  audienceMemberships String[] @default([])
   importBatchId      String?         @db.ObjectId
   provisionedBy      String?         @db.ObjectId
   lastLoginAt        DateTime?

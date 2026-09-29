@@ -30,12 +30,14 @@ model FeedPost {
   caption       String
   hashtags      String[]           @default([])
   scopeConfig   EventScopeConfig
+  resolvedAudienceTags String[]           @default([])
   metrics       FeedMetrics
   isPinned      Boolean            @default(false)
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
 
   @@index([universityId, createdAt])
+  @@index([resolvedAudienceTags, createdAt])
   @@index([departmentId, createdAt])
   @@map("feed_posts")
 }

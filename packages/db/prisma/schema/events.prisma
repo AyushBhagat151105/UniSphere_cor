@@ -99,6 +99,7 @@ model Event {
   category             EventCategory
   posterAndMedia       EventPosterAndMedia
   scopeConfig          EventScopeConfig
+  resolvedAudienceTags String[]            @default([])
   venue                String
   startTime            DateTime
   endTime              DateTime

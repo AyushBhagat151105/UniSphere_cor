@@ -44,6 +44,203 @@ erDiagram
 
 ---
 
+## 2.1. Document Detail & Wiring Map
+
+Detailed class diagram showing **key fields per collection** and every **foreign-key reference** (solid arrow = direct ObjectId ref, dashed arrow = embedded tag / implicit link). This complements the high-level ER diagram above with actual document shape.
+
+```mermaid
+classDiagram
+  direction TB
+
+  class University {
+    +ObjectId _id
+    +String code (unique)
+    +String name / shortName
+    +String domain
+    +ObjectId[] adminIds
+    +Boolean isActive
+  }
+
+  class Department {
+    +ObjectId _id
+    +ObjectId universityId
+    +String code (unique per uni)
+    +String[] branches
+    +Int[] availableYears
+    +ObjectId[] adminIds
+    +Boolean isActive
+  }
+
+  class User {
+    +ObjectId _id
+    +ObjectId universityId
+    +ObjectId departmentId
+    +UserRole role
+    +String email (unique)
+    +String passwordHash
+    +Boolean mustChangePassword
+    +StudentProfile studentProfile
+    +TeacherProfile teacherProfile
+    +String[] audienceMemberships
+    +ObjectId importBatchId
+  }
+
+  class UserSession {
+    +ObjectId _id → JWT sessionId
+    +ObjectId userId
+    +String refreshTokenHash (unique)
+    +DeviceMetadata deviceMetadata
+    +DateTime expiresAt (TTL)
+    +Boolean isRevoked
+    +String revokedReason
+  }
+
+  class CsvImportBatch {
+    +ObjectId _id
+    +ObjectId universityId
+    +ObjectId departmentId
+    +ObjectId uploadedBy
+    +String importType
+    +ImportSummary summary
+    +CsvRowError[] rowErrors
+    +String status
+    +DateTime completedAt
+  }
+
+  class Club {
+    +ObjectId _id
+    +ObjectId universityId
+    +ObjectId departmentId
+    +String slug (unique per uni)
+    +ClubCategory category
+    +ObjectId[] facultyAdminIds
+    +ObjectId[] studentRepAdminIds
+    +Int memberCount
+    +Boolean isAcceptingApplications
+  }
+
+  class ClubMembership {
+    +ObjectId _id
+    +ObjectId clubId
+    +ObjectId studentId
+    +ClubMemberRole memberRole
+    +MembershipStatus status
+    +ObjectId reviewedBy
+  }
+
+  class Event {
+    +ObjectId _id
+    +ObjectId universityId
+    +ObjectId departmentId
+    +ObjectId clubId
+    +EventScopeConfig scopeConfig
+    +String[] resolvedAudienceTags
+    +ObjectId[] authorizedScannerIds
+    +Int registeredCount
+    +Int attendedCount
+    +EventStatus status
+  }
+
+  class EventRegistration {
+    +ObjectId _id
+    +ObjectId eventId
+    +ObjectId studentId
+    +ParticipantSnapshot snapshot
+    +QrPass qrPass
+    +AttendanceRecord attendance
+    +RegistrationStatus status
+  }
+
+  class FeedPost {
+    +ObjectId _id
+    +ObjectId linkedEventId
+    +ObjectId authorId
+    +FeedPostType postType
+    +EventScopeConfig scopeConfig
+    +String[] resolvedAudienceTags
+    +FeedMetrics metrics
+    +Boolean isPinned
+  }
+
+  class PostInteraction {
+    +ObjectId _id
+    +ObjectId postId
+    +ObjectId userId
+    +InteractionType type
+    +String commentBody
+  }
+
+  class Notification {
+    +ObjectId _id
+    +ObjectId userId
+    +ObjectId universityId
+    +String type
+    +String title / body
+    +Boolean isRead
+  }
+
+  class AlumniMentorship {
+    +ObjectId _id
+    +ObjectId alumniUserId
+    +ObjectId linkedEventId
+    +String topic / companyName
+    +Int availableSlots
+    +String status
+  }
+
+  class PlacementDrive {
+    +ObjectId _id
+    +ObjectId departmentId
+    +String companyName / jobTitle
+    +Float packageLPA
+    +EligibilityCriteria eligibility
+    +String status
+  }
+
+  %% Layer 1 — Tenant Governance & Identity
+  University "1" --> "many" Department : contains
+  University "1" --> "many" User : tenants
+  Department "1" --> "many" User : enrolls via CSV
+  User "1" --> "many" UserSession : concurrent Web+Mobile sessions
+  Department "1" --> "many" CsvImportBatch : upload audit log
+  User ..> CsvImportBatch : importBatchId ref
+
+  %% Layer 2 — Clubs & Co-Leadership
+  Department "1" --> "many" Club : hosts
+  University "1" --> "many" Club : university-wide clubs
+  Club "1" --> "many" ClubMembership : manages
+  User "1" --> "many" ClubMembership : applies / co-leads
+
+  %% Layer 3 — Events, QR Passes & Gate Attendance
+  Department "1" --> "many" Event : scopes CLASS/DEPT/UNI
+  Club "1" --> "many" Event : organizes club events
+  Event "1" --> "many" EventRegistration : captures registrations
+  User "1" --> "many" EventRegistration : registers and scans in
+  User ..> Event : authorizedScannerIds
+
+  %% Layer 4 — Feed, Interactions & Notifications
+  Event "1" --> "many" FeedPost : promotes via poster carousel
+  FeedPost "1" --> "many" PostInteraction : likes / bookmarks / comments
+  User "1" --> "many" PostInteraction : interacts
+  User "1" --> "many" Notification : receives push alerts
+
+  %% Audience Wiring (pre-computed tags — dashed)
+  User ..> FeedPost : audienceMemberships ⟷ resolvedAudienceTags
+  User ..> Event : audienceMemberships ⟷ resolvedAudienceTags
+
+  %% Team 2 & 3 Addon Hooks
+  User "1" --> "many" AlumniMentorship : isAlumni hook
+  Department "1" --> "many" PlacementDrive : cgpa/branch eligibility
+```
+
+**Reading guide:**
+- **Solid arrows** (`-->`) = `ObjectId` foreign key references stored in the document.
+- **Dashed arrows** (`..>`) = logical wiring through pre-computed tag arrays or indirect references (no ObjectId stored on the source).
+- `audienceMemberships ⟷ resolvedAudienceTags` is the Circuit 2 pre-computed scope match — a `hasSome` array intersection replaces runtime `$or` fan-out across multiple array fields.
+- `ClubCoAdminGuard` reads `Club.facultyAdminIds` and `Club.studentRepAdminIds` directly (cached in Redis `club:co-admins:{clubId}`). `User.clubRoles` has been removed as a source of truth.
+
+---
+
 ## 3. Collection-by-Collection Field & Index Specification
 
 ### Collection 1: `universities` (`University` Model)

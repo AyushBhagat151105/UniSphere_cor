@@ -53,148 +53,148 @@ classDiagram
   direction TB
 
   class University {
-    +ObjectId _id
-    +String code (unique)
-    +String name / shortName
-    +String domain
-    +ObjectId[] adminIds
-    +Boolean isActive
+    ObjectId _id
+    String code (unique)
+    String name / shortName
+    String domain
+    ObjectId[] adminIds
+    Boolean isActive
   }
 
   class Department {
-    +ObjectId _id
-    +ObjectId universityId
-    +String code (unique per uni)
-    +String[] branches
-    +Int[] availableYears
-    +ObjectId[] adminIds
-    +Boolean isActive
+    ObjectId _id
+    ObjectId universityId
+    String code (unique per uni)
+    String[] branches
+    Int[] availableYears
+    ObjectId[] adminIds
+    Boolean isActive
   }
 
   class User {
-    +ObjectId _id
-    +ObjectId universityId
-    +ObjectId departmentId
-    +UserRole role
-    +String email (unique)
-    +String passwordHash
-    +Boolean mustChangePassword
-    +StudentProfile studentProfile
-    +TeacherProfile teacherProfile
-    +String[] audienceMemberships
-    +ObjectId importBatchId
+    ObjectId _id
+    ObjectId universityId
+    ObjectId departmentId
+    UserRole role
+    String email (unique)
+    String passwordHash
+    Boolean mustChangePassword
+    StudentProfile studentProfile
+    TeacherProfile teacherProfile
+    String[] audienceMemberships
+    ObjectId importBatchId
   }
 
   class UserSession {
-    +ObjectId _id → JWT sessionId
-    +ObjectId userId
-    +String refreshTokenHash (unique)
-    +DeviceMetadata deviceMetadata
-    +DateTime expiresAt (TTL)
-    +Boolean isRevoked
-    +String revokedReason
+    ObjectId _id → JWT sessionId
+    ObjectId userId
+    String refreshTokenHash (unique)
+    DeviceMetadata deviceMetadata
+    DateTime expiresAt (TTL)
+    Boolean isRevoked
+    String revokedReason
   }
 
   class CsvImportBatch {
-    +ObjectId _id
-    +ObjectId universityId
-    +ObjectId departmentId
-    +ObjectId uploadedBy
-    +String importType
-    +ImportSummary summary
-    +CsvRowError[] rowErrors
-    +String status
-    +DateTime completedAt
+    ObjectId _id
+    ObjectId universityId
+    ObjectId departmentId
+    ObjectId uploadedBy
+    String importType
+    ImportSummary summary
+    CsvRowError[] rowErrors
+    String status
+    DateTime completedAt
   }
 
   class Club {
-    +ObjectId _id
-    +ObjectId universityId
-    +ObjectId departmentId
-    +String slug (unique per uni)
-    +ClubCategory category
-    +ObjectId[] facultyAdminIds
-    +ObjectId[] studentRepAdminIds
-    +Int memberCount
-    +Boolean isAcceptingApplications
+    ObjectId _id
+    ObjectId universityId
+    ObjectId departmentId
+    String slug (unique per uni)
+    ClubCategory category
+    ObjectId[] facultyAdminIds
+    ObjectId[] studentRepAdminIds
+    Int memberCount
+    Boolean isAcceptingApplications
   }
 
   class ClubMembership {
-    +ObjectId _id
-    +ObjectId clubId
-    +ObjectId studentId
-    +ClubMemberRole memberRole
-    +MembershipStatus status
-    +ObjectId reviewedBy
+    ObjectId _id
+    ObjectId clubId
+    ObjectId studentId
+    ClubMemberRole memberRole
+    MembershipStatus status
+    ObjectId reviewedBy
   }
 
   class Event {
-    +ObjectId _id
-    +ObjectId universityId
-    +ObjectId departmentId
-    +ObjectId clubId
-    +EventScopeConfig scopeConfig
-    +String[] resolvedAudienceTags
-    +ObjectId[] authorizedScannerIds
-    +Int registeredCount
-    +Int attendedCount
-    +EventStatus status
+    ObjectId _id
+    ObjectId universityId
+    ObjectId departmentId
+    ObjectId clubId
+    EventScopeConfig scopeConfig
+    String[] resolvedAudienceTags
+    ObjectId[] authorizedScannerIds
+    Int registeredCount
+    Int attendedCount
+    EventStatus status
   }
 
   class EventRegistration {
-    +ObjectId _id
-    +ObjectId eventId
-    +ObjectId studentId
-    +ParticipantSnapshot snapshot
-    +QrPass qrPass
-    +AttendanceRecord attendance
-    +RegistrationStatus status
+    ObjectId _id
+    ObjectId eventId
+    ObjectId studentId
+    ParticipantSnapshot snapshot
+    QrPass qrPass
+    AttendanceRecord attendance
+    RegistrationStatus status
   }
 
   class FeedPost {
-    +ObjectId _id
-    +ObjectId linkedEventId
-    +ObjectId authorId
-    +FeedPostType postType
-    +EventScopeConfig scopeConfig
-    +String[] resolvedAudienceTags
-    +FeedMetrics metrics
-    +Boolean isPinned
+    ObjectId _id
+    ObjectId linkedEventId
+    ObjectId authorId
+    FeedPostType postType
+    EventScopeConfig scopeConfig
+    String[] resolvedAudienceTags
+    FeedMetrics metrics
+    Boolean isPinned
   }
 
   class PostInteraction {
-    +ObjectId _id
-    +ObjectId postId
-    +ObjectId userId
-    +InteractionType type
-    +String commentBody
+    ObjectId _id
+    ObjectId postId
+    ObjectId userId
+    InteractionType type
+    String commentBody
   }
 
   class Notification {
-    +ObjectId _id
-    +ObjectId userId
-    +ObjectId universityId
-    +String type
-    +String title / body
-    +Boolean isRead
+    ObjectId _id
+    ObjectId userId
+    ObjectId universityId
+    String type
+    String title / body
+    Boolean isRead
   }
 
   class AlumniMentorship {
-    +ObjectId _id
-    +ObjectId alumniUserId
-    +ObjectId linkedEventId
-    +String topic / companyName
-    +Int availableSlots
-    +String status
+    ObjectId _id
+    ObjectId alumniUserId
+    ObjectId linkedEventId
+    String topic / companyName
+    Int availableSlots
+    String status
   }
 
   class PlacementDrive {
-    +ObjectId _id
-    +ObjectId departmentId
-    +String companyName / jobTitle
-    +Float packageLPA
-    +EligibilityCriteria eligibility
-    +String status
+    ObjectId _id
+    ObjectId departmentId
+    String companyName / jobTitle
+    Float packageLPA
+    EligibilityCriteria eligibility
+    String status
   }
 
   %% Layer 1 — Tenant Governance & Identity

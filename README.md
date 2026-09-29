@@ -113,7 +113,7 @@ UniSphere_cor/
 ## 6. Quickstart & Local Development
 
 ### Prerequisites
-- **Bun** (`v1.2+`) — `curl -fsSL https://bun.sh/install | bash`
+- **Bun** (`v1.2+`) — `curl -fsSL https://bun.sh/install | bash` & on windows `powershell -c "irm bun.sh/install.ps1|iex"`
 - **Docker & Docker Compose** (for MongoDB & Redis)
 - **Node.js** (`v20+` LTS recommended for React Native / Expo tooling)
 

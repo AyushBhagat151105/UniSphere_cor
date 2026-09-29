@@ -1,0 +1,297 @@
+<mxfile host="app.diagrams.net" version="24.7.5">
+  <diagram name="UniSphere DB Schema" id="unisphere-db-wiring">
+    <mxGraphModel pageWidth="2200" pageHeight="1500" grid="1" gridSize="10" guides="1" dx="1000" dy="600">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- ROW 1 — IDENTITY LAYER  y=80..280                  -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <mxCell id="universities" value="&lt;b&gt;&lt;u&gt;universities&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;name : String&lt;br&gt;code : String&lt;br&gt;adminIds[] : ObjectId → users&lt;br&gt;logoUrl : String&lt;br&gt;primaryColor : String&lt;br&gt;isActive : Boolean&lt;br&gt;createdAt : DateTime&lt;br&gt;&lt;i&gt;← root tenant anchor&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="280" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="departments" value="&lt;b&gt;&lt;u&gt;departments&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;universityId : ObjectId → universities&lt;br&gt;name : String&lt;br&gt;code : String (CMPICA / CSPIT)&lt;br&gt;adminIds[] : ObjectId → users&lt;br&gt;branches : String[] (BCA/MCA)&lt;br&gt;allowedBatchYears : Int[]&lt;br&gt;isActive : Boolean&lt;br&gt;createdAt : DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="80" width="280" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="users" value="&lt;b&gt;&lt;u&gt;users&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;universityId : ObjectId → universities&lt;br&gt;departmentId : ObjectId → departments&lt;br&gt;email : String (unique)&lt;br&gt;passwordHash : String&lt;br&gt;role : Enum (SUPER_ADMIN … STUDENT)&lt;br&gt;mustChangePassword : Boolean&lt;br&gt;audienceMemberships : String[] ★&lt;br&gt;studentProfile : embedded&lt;br&gt;teacherProfile : embedded&lt;br&gt;isActive : Boolean&lt;br&gt;createdAt : DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="80" width="280" height="220" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="user_sessions" value="&lt;b&gt;&lt;u&gt;user_sessions&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;userId : ObjectId → users&lt;br&gt;sessionId : String (unique)&lt;br&gt;refreshTokenHash : String (SHA-256)&lt;br&gt;deviceType : Enum (WEB/ANDROID/IOS)&lt;br&gt;deviceMetadata : embedded&lt;br&gt;expoPushToken : String?&lt;br&gt;isActive : Boolean&lt;br&gt;lastActivityAt : DateTime&lt;br&gt;expiresAt : DateTime&lt;br&gt;createdAt : DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="80" width="280" height="220" as="geometry"/>
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- ROW 2 — BUSINESS LAYER  y=500..720                 -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <mxCell id="csv_import_batches" value="&lt;b&gt;&lt;u&gt;csv_import_batches&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;departmentId : ObjectId → departments&lt;br&gt;uploadedBy : ObjectId → users&lt;br&gt;importType : Enum (STUDENT/TEACHER)&lt;br&gt;status : Enum (PENDING/DONE/PARTIAL)&lt;br&gt;totalRows : Int&lt;br&gt;successCount : Int&lt;br&gt;failureCount : Int&lt;br&gt;errorRows : ErrorRow[] (Zod messages)&lt;br&gt;createdAt : DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="500" width="280" height="210" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="clubs" value="&lt;b&gt;&lt;u&gt;clubs&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;universityId : ObjectId → universities&lt;br&gt;departmentId : ObjectId? → departments&lt;br&gt;name : String&lt;br&gt;description : String&lt;br&gt;facultyAdminIds[] : ObjectId → users ★&lt;br&gt;studentRepAdminIds[] : ObjectId → users ★&lt;br&gt;logoUrl : String?&lt;br&gt;memberCount : Int&lt;br&gt;isActive : Boolean&lt;br&gt;createdAt : DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="500" width="280" height="220" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="events" value="&lt;b&gt;&lt;u&gt;events&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;universityId : ObjectId → universities&lt;br&gt;departmentId : ObjectId? → departments&lt;br&gt;clubId : ObjectId? → clubs&lt;br&gt;title / slug : String&lt;br&gt;category : Enum&lt;br&gt;scopeConfig : embedded ★&lt;br&gt;resolvedAudienceTags : String[] ★&lt;br&gt;authorizedScannerIds[] : ObjectId → users&lt;br&gt;status : Enum&lt;br&gt;createdBy : ObjectId → users&lt;br&gt;startTime / endTime : DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="500" width="280" height="230" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="feed_posts" value="&lt;b&gt;&lt;u&gt;feed_posts&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;universityId : ObjectId → universities&lt;br&gt;departmentId : ObjectId? → departments&lt;br&gt;clubId : ObjectId? → clubs&lt;br&gt;linkedEventId : ObjectId? → events&lt;br&gt;authorId : ObjectId → users&lt;br&gt;postType : Enum&lt;br&gt;caption : String&lt;br&gt;scopeConfig : embedded ★&lt;br&gt;resolvedAudienceTags : String[] ★&lt;br&gt;metrics : embedded&lt;br&gt;isPinned : Boolean&lt;br&gt;createdAt : DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="500" width="280" height="250" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="notifications" value="&lt;b&gt;&lt;u&gt;notifications&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;userId : ObjectId → users&lt;br&gt;universityId : ObjectId → universities&lt;br&gt;type : String&lt;br&gt;title : String&lt;br&gt;body : String&lt;br&gt;thumbnailUrl : String?&lt;br&gt;actionUrl : String?&lt;br&gt;isRead : Boolean&lt;br&gt;createdAt : DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="500" width="280" height="210" as="geometry"/>
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- ROW 3 — DETAIL LAYER  y=960..1160                  -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <mxCell id="club_memberships" value="&lt;b&gt;&lt;u&gt;club_memberships&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;clubId : ObjectId → clubs&lt;br&gt;userId : ObjectId → users&lt;br&gt;status : Enum (PENDING/APPROVED/REJECTED)&lt;br&gt;role : Enum (MEMBER/COMMITTEE)&lt;br&gt;appliedAt : DateTime&lt;br&gt;reviewedAt : DateTime?&lt;br&gt;reviewedBy : ObjectId? → users" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="960" width="280" height="190" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="event_registrations" value="&lt;b&gt;&lt;u&gt;event_registrations&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;eventId : ObjectId → events&lt;br&gt;universityId : ObjectId → universities&lt;br&gt;studentId : ObjectId → users&lt;br&gt;participantSnapshot : embedded&lt;br&gt;qrPass : { ticketCode, qrSignature } ★&lt;br&gt;attendance : { isPresent, checkedInAt } ★&lt;br&gt;status : Enum (CONFIRMED/ATTENDED)&lt;br&gt;registeredAt : DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="960" width="280" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="post_interactions" value="&lt;b&gt;&lt;u&gt;post_interactions&lt;/u&gt;&lt;/b&gt;&lt;br&gt;_id : ObjectId (PK)&lt;br&gt;postId : ObjectId → feed_posts&lt;br&gt;userId : ObjectId → users&lt;br&gt;type : Enum (LIKE / BOOKMARK / COMMENT)&lt;br&gt;commentBody : String?&lt;br&gt;createdAt : DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;spacingLeft=6;spacingTop=5;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="960" width="280" height="160" as="geometry"/>
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- ROW-1 HORIZONTAL ARROWS                            -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <!-- departments → universities -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="departments" target="universities" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1l" value="universityId" style="edgeLabel;fontSize=10;fontColor=#6c8ebf;fontStyle=2;" vertex="1" connectable="0" parent="e1">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- users → departments -->
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="users" target="departments" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2l" value="departmentId" style="edgeLabel;fontSize=10;fontColor=#6c8ebf;fontStyle=2;" vertex="1" connectable="0" parent="e2">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- user_sessions → users -->
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="user_sessions" target="users" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3l" value="userId" style="edgeLabel;fontSize=10;fontColor=#6c8ebf;fontStyle=2;" vertex="1" connectable="0" parent="e3">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- ROW-2 HORIZONTAL ARROWS                            -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <!-- events → clubs -->
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;exitX=0;exitY=0.4;exitDx=0;exitDy=0;entryX=1;entryY=0.4;entryDx=0;entryDy=0;" edge="1" source="events" target="clubs" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4l" value="clubId?" style="edgeLabel;fontSize=10;fontColor=#9673a6;fontStyle=2;" vertex="1" connectable="0" parent="e4">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- feed_posts → events (dashed) -->
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;dashed=1;dashPattern=8 4;strokeColor=#9673a6;strokeWidth=1;exitX=0;exitY=0.6;exitDx=0;exitDy=0;entryX=1;entryY=0.6;entryDx=0;entryDy=0;" edge="1" source="feed_posts" target="events" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5l" value="linkedEventId?" style="edgeLabel;fontSize=10;fontColor=#9673a6;fontStyle=2;" vertex="1" connectable="0" parent="e5">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SAME-COLUMN VERTICAL ARROWS (Row2→Row1, Row3→Row2) -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <!-- clubs → departments (same col, row2→row1) -->
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="clubs" target="departments" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6l" value="departmentId?" style="edgeLabel;fontSize=10;fontColor=#82b366;fontStyle=2;" vertex="1" connectable="0" parent="e6">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- events → users (same col, row2→row1) -->
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="events" target="users" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7l" value="createdBy" style="edgeLabel;fontSize=10;fontColor=#9673a6;fontStyle=2;" vertex="1" connectable="0" parent="e7">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- club_memberships → clubs (same col, row3→row2) -->
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="club_memberships" target="clubs" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8l" value="clubId" style="edgeLabel;fontSize=10;fontColor=#82b366;fontStyle=2;" vertex="1" connectable="0" parent="e8">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- event_registrations → events (same col, row3→row2) -->
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="event_registrations" target="events" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9l" value="eventId" style="edgeLabel;fontSize=10;fontColor=#9673a6;fontStyle=2;" vertex="1" connectable="0" parent="e9">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- post_interactions → feed_posts (same col, row3→row2) -->
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="post_interactions" target="feed_posts" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10l" value="postId" style="edgeLabel;fontSize=10;fontColor=#d79b00;fontStyle=2;" vertex="1" connectable="0" parent="e10">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- L-SHAPE ARROWS THROUGH ROW-GAP (y≈390)             -->
+        <!-- Gap between row1-bottom(300) and row2-top(500)     -->
+        <!-- Safe corridor at y=390, left side at x=380         -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <!-- csv → departments: exit top, jog right, enter bottom -->
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;exitX=0.8;exitY=0;exitDx=0;exitDy=0;entryX=0.3;entryY=1;entryDx=0;entryDy=0;" edge="1" source="csv_import_batches" target="departments" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="284" y="390"/>
+              <mxPoint x="504" y="390"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11l" value="departmentId" style="edgeLabel;fontSize=10;fontColor=#d6b656;fontStyle=2;" vertex="1" connectable="0" parent="e11">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- clubs → users: exit right, jog through gap, enter left -->
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.4;entryDx=0;entryDy=0;" edge="1" source="clubs" target="users" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="566"/>
+              <mxPoint x="750" y="168"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12l" value="facultyAdminIds[] ★" style="edgeLabel;fontSize=10;fontColor=#82b366;fontStyle=2;" vertex="1" connectable="0" parent="e12">
+          <mxGeometry relative="0.3" as="geometry"/>
+        </mxCell>
+
+        <!-- feed_posts → users: exit left, jog through gap, enter right -->
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=2;exitX=0;exitY=0.3;exitDx=0;exitDy=0;entryX=1;entryY=0.4;entryDx=0;entryDy=0;" edge="1" source="feed_posts" target="users" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1090" y="575"/>
+              <mxPoint x="1090" y="168"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e13l" value="authorId" style="edgeLabel;fontSize=10;fontColor=#d79b00;fontStyle=2;" vertex="1" connectable="0" parent="e13">
+          <mxGeometry relative="0.3" as="geometry"/>
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- LONG ARROWS — TOP CORRIDOR (y=20 / y=35)           -->
+        <!-- x=380 left corridor safely between all columns      -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <!-- event_registrations → users: left corridor + top corridor -->
+        <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;" edge="1" source="event_registrations" target="users" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="1060"/>
+              <mxPoint x="380" y="35"/>
+              <mxPoint x="892" y="35"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e14l" value="studentId" style="edgeLabel;fontSize=10;fontColor=#9673a6;fontStyle=2;" vertex="1" connectable="0" parent="e14">
+          <mxGeometry relative="0.15" as="geometry"/>
+        </mxCell>
+
+        <!-- notifications → users: top corridor at y=20 -->
+        <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=2;exitX=0.3;exitY=0;exitDx=0;exitDy=0;entryX=0.55;entryY=0;entryDx=0;entryDy=0;" edge="1" source="notifications" target="users" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1584" y="20"/>
+              <mxPoint x="934" y="20"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e15l" value="userId" style="edgeLabel;fontSize=10;fontColor=#666666;fontStyle=2;" vertex="1" connectable="0" parent="e15">
+          <mxGeometry relative="0.15" as="geometry"/>
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- CIRCUIT 2 — AUDIENCE TAG WIRING (dashed red)       -->
+        <!-- hasSome: User.audienceMemberships ∩ resolvedTags   -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <!-- users → events (hasSome) -->
+        <mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;dashed=1;dashPattern=5 5;strokeColor=#FF3333;strokeWidth=2;exitX=1;exitY=0.65;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="users" target="events" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1100" y="223"/>
+              <mxPoint x="1100" y="390"/>
+              <mxPoint x="920" y="390"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e16l" value="hasSome ★ Circuit 2" style="edgeLabel;fontSize=10;fontColor=#FF3333;fontStyle=2;" vertex="1" connectable="0" parent="e16">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- users → feed_posts (hasSome) -->
+        <mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;dashed=1;dashPattern=5 5;strokeColor=#FF3333;strokeWidth=2;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="users" target="feed_posts" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1110" y="245"/>
+              <mxPoint x="1110" y="400"/>
+              <mxPoint x="1280" y="400"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e17l" value="hasSome ★ Circuit 2" style="edgeLabel;fontSize=10;fontColor=#FF3333;fontStyle=2;" vertex="1" connectable="0" parent="e17">
+          <mxGeometry relative="0.5" as="geometry"/>
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- LEGEND                                             -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <mxCell id="legend-box" value="&lt;b&gt;Legend &amp; Circuit Notes&lt;/b&gt;&lt;hr/&gt;★ = Circuit-resolved architectural field (do not remove)&lt;br&gt;&lt;br&gt;━━━  Solid arrow = ObjectId FK reference&lt;br&gt;╌╌╌  Purple dashed = optional FK (nullable field)&lt;br&gt;╌╌╌  RED dashed = tag-based array intersection (Circuit 2)&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;hasSome: User.audienceMemberships ∩ resolvedAudienceTags&lt;br&gt;&lt;br&gt;Circuit 1 — ClubCoAdminGuard:&lt;br&gt;&amp;nbsp;&amp;nbsp;Club.facultyAdminIds[] + Club.studentRepAdminIds[] = SOLE authority.&lt;br&gt;&amp;nbsp;&amp;nbsp;User.clubRoles removed. Redis TTL 60 s.&lt;br&gt;&lt;br&gt;Circuit 3 — Gate Scanner CAS:&lt;br&gt;&amp;nbsp;&amp;nbsp;prisma.$runCommandRaw findAndModify → atomic attendance.isPresent&lt;br&gt;&lt;br&gt;Circuit 5 — Partial unique index (enrollmentNo per university):&lt;br&gt;&amp;nbsp;&amp;nbsp;bun run db:indexes → setup-indexes.ts, role=STUDENT filter" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;align=left;verticalAlign=top;spacingLeft=8;spacingTop=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1240" width="560" height="240" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c1" value="Identity / Tenant" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1250" width="160" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="c2" value="Onboarding (CSV)" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1292" width="160" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="c3" value="Clubs" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1334" width="160" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="c4" value="Events" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1376" width="160" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="c5" value="Feed" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1418" width="160" height="32" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

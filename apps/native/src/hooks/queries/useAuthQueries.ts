@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "../../services/auth.api";
+import { useAuthStore } from "../../stores/auth.store";
 
 export const authKeys = {
   all: ["auth"] as const,
@@ -11,7 +12,10 @@ export function useLogin() {
   
   return useMutation({
     mutationFn: authApi.login,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data?.data?.user) {
+        useAuthStore.getState().login(data.data.user);
+      }
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
     },
   });
@@ -29,6 +33,7 @@ export function useLogout() {
   return useMutation({
     mutationFn: authApi.logout,
     onSettled: () => {
+      useAuthStore.getState().logout();
       queryClient.clear();
     }
   });

@@ -4,6 +4,7 @@ import type { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from "axio
 // Assuming a fallback or standard import for now:
 import { env } from "@UniSphere_cor/env/native";
 import * as SecureStore from 'expo-secure-store';
+import { useAuthStore } from "../stores/auth.store";
 
 const serverBaseURL = env.EXPO_PUBLIC_SERVER_URL;
 
@@ -37,6 +38,7 @@ export const clearTokens = async () => {
   accessTokenCache = null;
   await SecureStore.deleteItemAsync("accessToken");
   await SecureStore.deleteItemAsync("refreshToken");
+  useAuthStore.getState().logout();
 };
 
 // Interceptor to add auth token

@@ -1,22 +1,38 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
-
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { Container } from "@/components/container";
 import { NAV_THEME } from "@/lib/constants";
 import { useColorScheme } from "@/lib/use-color-scheme";
+import { useAuthStore } from "@/src/stores/auth.store";
 
 export default function Home() {
   const { colorScheme } = useColorScheme();
   const theme = colorScheme === "dark" ? NAV_THEME.dark : NAV_THEME.light;
+  const user = useAuthStore((state) => state.user);
 
   return (
     <Container>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
-          <Text style={[styles.title, { color: theme.text }]}>Better Fullstack</Text>
+          <View style={[styles.header, { borderBottomColor: theme.border }]}>
+            <Text style={[styles.title, { color: theme.primary }]}>Dashboard</Text>
+            <Text style={[styles.subtitle, { color: theme.text }]}>
+              Welcome back, {user?.email || "Student"}!
+            </Text>
+          </View>
 
           <View
-            style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
-          ></View>
+            style={[
+              styles.card,
+              { backgroundColor: theme.card, borderColor: theme.border },
+            ]}
+          >
+            <Text style={[styles.cardTitle, { color: theme.text }]}>Your Role</Text>
+            <View style={[styles.roleBadge, { backgroundColor: theme.background }]}>
+              <Text style={[styles.roleText, { color: theme.primary }]}>
+                {user?.role || "N/A"}
+              </Text>
+            </View>
+          </View>
         </View>
       </ScrollView>
     </Container>
@@ -30,66 +46,43 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
+  header: {
+    marginBottom: 24,
+    paddingBottom: 16,
+    borderBottomWidth: 2,
+  },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
+    fontSize: 32,
+    fontWeight: "900", // Imitates font-black / display
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: "500",
+    opacity: 0.7,
   },
   card: {
-    padding: 16,
+    padding: 24,
     marginBottom: 16,
-    borderWidth: 1,
+    borderWidth: 2,
+    borderRadius: 6,
   },
-  statusRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  statusIndicator: {
-    height: 8,
-    width: 8,
-  },
-  statusContent: {
-    flex: 1,
-  },
-  statusTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  statusText: {
-    fontSize: 12,
-  },
-  userCard: {
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "bold", // Imitates display font
     marginBottom: 16,
-    padding: 16,
+  },
+  roleBadge: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 4,
     borderWidth: 1,
+    borderColor: "#E5E7EB", // Assuming a slight border
   },
-  userHeader: {
-    marginBottom: 8,
-  },
-  userText: {
-    fontSize: 16,
-  },
-  userName: {
-    fontWeight: "bold",
-  },
-  userEmail: {
-    fontSize: 14,
-    marginBottom: 12,
-  },
-  signOutButton: {
-    padding: 12,
-  },
-  signOutText: {
-    color: "#ffffff",
-  },
-  statusCard: {
-    marginBottom: 16,
-    padding: 16,
-    borderWidth: 1,
-  },
-  statusCardTitle: {
-    marginBottom: 8,
-    fontWeight: "bold",
+  roleText: {
+    fontSize: 24,
+    fontWeight: "900", // Imitates font-black
   },
 });
+

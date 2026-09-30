@@ -1,5 +1,6 @@
 import { env } from "@UniSphere_cor/env/web";
 import axios from "axios";
+import { useAuthStore } from "../stores/auth.store";
 
 const serverBaseURL = env.VITE_SERVER_URL;
 
@@ -19,6 +20,7 @@ export const setTokens = (accessToken: string, refreshToken: string) => {
 export const clearTokens = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
+  useAuthStore.getState().logout();
 };
 
 // Interceptor to add auth token

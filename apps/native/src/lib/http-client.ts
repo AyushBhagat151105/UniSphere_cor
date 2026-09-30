@@ -1,7 +1,11 @@
-import { env } from "@UniSphere_cor/env/web";
 import axios from "axios";
+import type { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
+// In React Native, environment variables from the shared package or expo-constants need careful handling.
+// Assuming a fallback or standard import for now:
+import { env } from "@UniSphere_cor/env/native";
+import * as SecureStore from 'expo-secure-store';
 
-const serverBaseURL = env.VITE_SERVER_URL;
+const serverBaseURL = env.EXPO_PUBLIC_SERVER_URL;
 
 export const httpClient = axios.create({
   baseURL: serverBaseURL,
@@ -9,28 +13,42 @@ export const httpClient = axios.create({
   timeout: 10_000,
 });
 
-// Helper to get tokens - in web we use localStorage
-export const getAccessToken = () => localStorage.getItem("accessToken");
-export const getRefreshToken = () => localStorage.getItem("refreshToken");
-export const setTokens = (accessToken: string, refreshToken: string) => {
-  localStorage.setItem("accessToken", accessToken);
-  localStorage.setItem("refreshToken", refreshToken);
+// Since SecureStore operations are async, we manage a sync cache for interceptor speed,
+// initialized on app load, or just await the store in the interceptor.
+let accessTokenCache: string | null = null;
+
+export const getAccessToken = async () => {
+  if (accessTokenCache) return accessTokenCache;
+  accessTokenCache = await SecureStore.getItemAsync("accessToken");
+  return accessTokenCache;
 };
-export const clearTokens = () => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
+
+export const getRefreshToken = async () => {
+  return await SecureStore.getItemAsync("refreshToken");
+};
+
+export const setTokens = async (accessToken: string, refreshToken: string) => {
+  accessTokenCache = accessToken;
+  await SecureStore.setItemAsync("accessToken", accessToken);
+  await SecureStore.setItemAsync("refreshToken", refreshToken);
+};
+
+export const clearTokens = async () => {
+  accessTokenCache = null;
+  await SecureStore.deleteItemAsync("accessToken");
+  await SecureStore.deleteItemAsync("refreshToken");
 };
 
 // Interceptor to add auth token
 httpClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken();
+  async (config: InternalAxiosRequestConfig) => {
+    const token = await getAccessToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error: any) => Promise.reject(error)
 );
 
 // Interceptor to handle 401s and refresh tokens
@@ -52,9 +70,9 @@ const processQueue = (error: any, token: string | null = null) => {
 };
 
 httpClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
+    const originalRequest: any = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (originalRequest.url?.includes("/auth/refresh") || originalRequest.url?.includes("/auth/login")) {
@@ -77,22 +95,20 @@ httpClient.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = getRefreshToken();
+      const refreshToken = await getRefreshToken();
       if (!refreshToken) {
-        clearTokens();
-        // Option to emit event to redirect to login
-        window.dispatchEvent(new Event("auth:logout"));
+        await clearTokens();
         return Promise.reject(error);
       }
 
       try {
-        const { data } = await axios.post(`${serverBaseURL}/api/v1/auth/refresh`, {
+        const { data } = await axios.post<any>(`${serverBaseURL}/api/v1/auth/refresh`, {
           refreshToken,
         });
 
         const newAccessToken = data.data.accessToken;
         const newRefreshToken = data.data.refreshToken;
-        setTokens(newAccessToken, newRefreshToken);
+        await setTokens(newAccessToken, newRefreshToken);
 
         httpClient.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -101,8 +117,7 @@ httpClient.interceptors.response.use(
         return httpClient(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        clearTokens();
-        window.dispatchEvent(new Event("auth:logout"));
+        await clearTokens();
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

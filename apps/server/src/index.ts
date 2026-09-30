@@ -1,11 +1,13 @@
 import { env } from "@UniSphere_cor/env/server";
 import cors from "cors";
-import express from "express";
+import express, { type Express } from "express";
 import { apiReference } from "@scalar/express-api-reference";
 import { generateOpenApiDocument } from "./utils/openapi";
 import clubsRouter from "./modules/clubs/routes/clubs.routes";
+import authRouter from "./modules/auth/routes/auth.routes";
+import { errorHandler } from "./utils/error-handler";
 
-const app = express();
+export const app: Express = express();
 
 app.use(
   cors({
@@ -35,12 +37,17 @@ app.use(
 
 // Mount the demonstrated router
 app.use(clubsRouter);
+app.use(authRouter);
 
 app.get("/", (_req, res) => {
   res.status(200).send("OK");
 });
 
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
-  console.log("Interactive API Documentation: http://localhost:3000/api/docs");
-});
+app.use(errorHandler);
+
+if (process.env.NODE_ENV !== "test") {
+  app.listen(3000, () => {
+    console.log("Server is running on http://localhost:3000");
+    console.log("Interactive API Documentation: http://localhost:3000/api/docs");
+  });
+}

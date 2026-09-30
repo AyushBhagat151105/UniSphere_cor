@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { registerRoute } from "../../../utils/routeBuilder";
 import { createClubBodySchema, createClubResponseSchema } from "../validators/clubs.validators";
+import { ApiResponse } from "../../../utils/api-response";
+import { asyncHandler } from "../../../utils/async-handler";
 
 const router: Router = Router();
 
@@ -26,24 +28,16 @@ registerRoute(
   // Usually requireAuth, requireRole would go here:
   // requireAuth,
   // requireRole(["TEACHER", "DEPARTMENT_ADMIN", "UNIVERSITY_ADMIN"]),
-  async (req, res, next) => {
-    try {
-      // Typically: const data = await createClubService(req.body);
-      const data = {
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        name: req.body.name,
-        createdAt: new Date().toISOString(),
-      };
+  asyncHandler(async (req, res) => {
+    // Typically: const data = await createClubService(req.body);
+    const data = {
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      name: req.body.name,
+      createdAt: new Date().toISOString(),
+    };
 
-      res.status(201).json({
-        success: true,
-        message: "Campus club created successfully",
-        data,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+    res.status(201).json(ApiResponse.created(data, "Campus club created successfully"));
+  })
 );
 
 export default router;

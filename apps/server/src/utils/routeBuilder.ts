@@ -3,6 +3,7 @@ import type { RequestHandler } from "express";
 import { z } from "zod";
 import type { ZodTypeAny } from "zod";
 import { openApiRegistry, bearerAuth } from "./openapi";
+import { ApiError } from "./api-response";
 
 export interface RouteConfig {
   method: "get" | "post" | "put" | "delete" | "patch";
@@ -28,38 +29,30 @@ export function createApiResponseSchema(dataSchema?: ZodTypeAny) {
   if (dataSchema) {
     return z.object({
       success: z.literal(true),
-      message: z.string(),
+      status: z.number(),
+      message: z.string().optional(),
       data: dataSchema,
-      meta: z
-        .object({
-          page: z.number(),
-          limit: z.number(),
-          total: z.number(),
-          nextCursor: z.string().nullable(),
-        })
-        .optional(),
     });
   }
   return z.object({
     success: z.literal(true),
-    message: z.string(),
+    status: z.number(),
+    message: z.string().optional(),
   });
 }
 
 export const errorResponseSchema = z.object({
   success: z.literal(false),
-  error: z.object({
-    code: z.string(),
-    message: z.string(),
-    details: z.array(z.any()).optional(),
-  }),
+  status: z.number(),
+  error: z.string(),
+  details: z.any().optional(),
 });
 
 /**
  * Validates request data against the provided Zod schemas and returns an exact standard error layout on failure.
  */
 export function validateRequest(schemas: RouteConfig["request"]): RequestHandler {
-  return (req, res, next) => {
+  return (req, _res, next) => {
     try {
       if (schemas?.body) {
         req.body = schemas.body.parse(req.body);
@@ -73,14 +66,7 @@ export function validateRequest(schemas: RouteConfig["request"]): RequestHandler
       next();
     } catch (err: any) {
       if (err instanceof z.ZodError) {
-        res.status(400).json({
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "Invalid request data",
-            details: err.issues,
-          },
-        });
+        next(new ApiError(400, "Validation Error", err.issues));
       } else {
         next(err);
       }

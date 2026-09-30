@@ -2,14 +2,24 @@ name: CI
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: ["main", "dev-branch"]
   pull_request:
-    branches: ["main", "master"]
+    branches: ["main", "dev-branch"]
 
 jobs:
   ci:
-    name: Lint, Type Check & Build
+    name: Lint, Type Check, Build & E2E Test
     runs-on: ubuntu-latest
+
+    # Setup a background MongoDB service for database operations in CI
+    services:
+      mongodb:
+        image: mongo:8.0.4
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: password
 
     steps:
       - name: Checkout repository
@@ -23,11 +33,20 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Execute Prisma Push to initialize test DB
+        run: bun run --filter @UniSphere_cor/db db:push --accept-data-loss
+        env:
+          DATABASE_URL: "mongodb://root:password@localhost:27017/UniSphere_test?authSource=admin"
+
       - name: Type check
         run: bun run check-types
 
       - name: Build
         run: bun run build
 
-      - name: Test
+      - name: Test & E2E
         run: bun run test
+        env:
+          DATABASE_URL: "mongodb://root:password@localhost:27017/UniSphere_test?authSource=admin"
+          JWT_SECRET: "test-super-secret"
+          REFRESH_SECRET: "test-super-secret-refresh"

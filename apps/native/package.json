@@ -22,6 +22,7 @@
     "@react-navigation/native-stack": "^7.19.2",
     "@tanstack/react-form": "catalog:",
     "@tanstack/react-query": "catalog:",
+    "axios": "^1.20.0",
     "dotenv": "catalog:",
     "expo": "^56.0.12",
     "expo-camera": "~56.0.8",

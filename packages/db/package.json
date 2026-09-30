@@ -27,6 +27,8 @@
   "dependencies": {
     "@UniSphere_cor/env": "workspace:*",
     "@prisma/client": "catalog:",
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },

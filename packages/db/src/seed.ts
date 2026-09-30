@@ -1,6 +1,9 @@
 import prisma from "./index";
+import bcrypt from "bcrypt";
 
 async function seed() {
+  const defaultPasswordHash = await bcrypt.hash("Password123!", 10);
+
   console.log("🌱 Seeding UniSphere_cor MongoDB across all 14 collections...\n");
 
   // Clean existing dependent records to ensure idempotent runs
@@ -113,6 +116,7 @@ async function seed() {
     update: {
       name: "Ayush Bhagat (Dev Club Lead)",
       role: "SUPER_ADMIN",
+      passwordHash: defaultPasswordHash,
       universityId: charusat.id,
       departmentId: cmpica.id,
       mustChangePassword: false,
@@ -124,9 +128,8 @@ async function seed() {
       name: "Ayush Bhagat (Dev Club Lead)",
       email: "ayush.devclub@charusat.edu.in",
       phone: "+919876543210",
-      passwordHash: "$2b$10$unisphereHashedSuperAdminPassword",
+      passwordHash: defaultPasswordHash,
       mustChangePassword: false,
-      clubRoles: { facultyAdminClubIds: [], studentRepClubIds: [] },
     },
   });
 
@@ -136,6 +139,7 @@ async function seed() {
     update: {
       universityId: charusat.id,
       role: "UNIVERSITY_ADMIN",
+      passwordHash: defaultPasswordHash,
       mustChangePassword: false,
     },
     create: {
@@ -144,9 +148,8 @@ async function seed() {
       name: "Dr. Devang Joshi (CHARUSAT Registrar)",
       email: "registrar@charusat.edu.in",
       phone: "+919876543211",
-      passwordHash: "$2b$10$unisphereHashedUniAdminPassword",
+      passwordHash: defaultPasswordHash,
       mustChangePassword: false,
-      clubRoles: { facultyAdminClubIds: [], studentRepClubIds: [] },
     },
   });
 
@@ -157,6 +160,7 @@ async function seed() {
       universityId: charusat.id,
       departmentId: cmpica.id,
       role: "DEPARTMENT_ADMIN",
+      passwordHash: defaultPasswordHash,
       mustChangePassword: false,
     },
     create: {
@@ -166,9 +170,8 @@ async function seed() {
       name: "Dr. Atul Patel (Dean & Principal, CMPICA)",
       email: "hod.cmpica@charusat.edu.in",
       phone: "+919876543212",
-      passwordHash: "$2b$10$unisphereHashedDeptAdminPassword",
+      passwordHash: defaultPasswordHash,
       mustChangePassword: false,
-      clubRoles: { facultyAdminClubIds: [], studentRepClubIds: [] },
     },
   });
 
@@ -209,6 +212,7 @@ async function seed() {
       universityId: charusat.id,
       departmentId: cmpica.id,
       role: "TEACHER",
+      passwordHash: defaultPasswordHash,
     },
     create: {
       universityId: charusat.id,
@@ -217,14 +221,13 @@ async function seed() {
       name: "Prof. Arpit Trivedi",
       email: "arpit.trivedi@charusat.edu.in",
       phone: "+919876543213",
-      passwordHash: "$2b$10$unisphereHashedTeacherPassword",
+      passwordHash: defaultPasswordHash,
       mustChangePassword: false,
       teacherProfile: {
         employeeId: "CMPICA-FAC-104",
         designation: "Assistant Professor",
         cabinNo: "CMPICA-208",
       },
-      clubRoles: { facultyAdminClubIds: [], studentRepClubIds: [] },
       provisionedBy: deptAdmin.id,
     },
   });
@@ -236,6 +239,7 @@ async function seed() {
       universityId: charusat.id,
       departmentId: cmpica.id,
       role: "STUDENT",
+      passwordHash: defaultPasswordHash,
       importBatchId: csvBatch.id,
     },
     create: {
@@ -245,7 +249,7 @@ async function seed() {
       name: "Komal Patel",
       email: "24bca045@charusat.edu.in",
       phone: "+919876543214",
-      passwordHash: "$2b$10$unisphereHashedStudentRepPassword",
+      passwordHash: defaultPasswordHash,
       mustChangePassword: false,
       studentProfile: {
         enrollmentNo: "24BCA045",
@@ -258,7 +262,6 @@ async function seed() {
         resumeUrl: "https://res.cloudinary.com/unisphere/komal-resume.pdf",
         isAlumni: false,
       },
-      clubRoles: { facultyAdminClubIds: [], studentRepClubIds: [] },
       importBatchId: csvBatch.id,
       provisionedBy: deptAdmin.id,
     },
@@ -271,6 +274,7 @@ async function seed() {
       universityId: charusat.id,
       departmentId: cmpica.id,
       role: "STUDENT",
+      passwordHash: defaultPasswordHash,
       importBatchId: csvBatch.id,
     },
     create: {
@@ -280,7 +284,7 @@ async function seed() {
       name: "Harshvardhan Parmar",
       email: "24bca088@charusat.edu.in",
       phone: "+919876543215",
-      passwordHash: "$2b$10$unisphereHashedStudentPassword",
+      passwordHash: defaultPasswordHash,
       mustChangePassword: false,
       studentProfile: {
         enrollmentNo: "24BCA088",
@@ -292,7 +296,6 @@ async function seed() {
         skills: ["Node.js", "MongoDB", "Flutter"],
         isAlumni: false,
       },
-      clubRoles: { facultyAdminClubIds: [], studentRepClubIds: [] },
       importBatchId: csvBatch.id,
       provisionedBy: deptAdmin.id,
     },
@@ -305,6 +308,7 @@ async function seed() {
       universityId: charusat.id,
       departmentId: cmpica.id,
       role: "STUDENT",
+      passwordHash: defaultPasswordHash,
     },
     create: {
       universityId: charusat.id,
@@ -313,7 +317,7 @@ async function seed() {
       name: "Rohan Desai (CMPICA Alumni)",
       email: "21mca012@charusat.edu.in",
       phone: "+919876543216",
-      passwordHash: "$2b$10$unisphereHashedAlumniPassword",
+      passwordHash: defaultPasswordHash,
       mustChangePassword: false,
       studentProfile: {
         enrollmentNo: "21MCA012",
@@ -327,7 +331,6 @@ async function seed() {
         graduationYear: 2023,
         currentCompany: "Razorpay",
       },
-      clubRoles: { facultyAdminClubIds: [], studentRepClubIds: [] },
     },
   });
 
@@ -414,26 +417,6 @@ async function seed() {
       memberCount: 44,
       isAcceptingApplications: true,
       createdBy: teacherProf.id,
-    },
-  });
-
-  // Sync User.clubRoles with assigned clubs
-  await prisma.user.update({
-    where: { id: teacherProf.id },
-    data: {
-      clubRoles: {
-        facultyAdminClubIds: [devClub.id, garbaClub.id, drawingClub.id],
-        studentRepClubIds: [],
-      },
-    },
-  });
-  await prisma.user.update({
-    where: { id: studentRep.id },
-    data: {
-      clubRoles: {
-        facultyAdminClubIds: [],
-        studentRepClubIds: [devClub.id, garbaClub.id, drawingClub.id],
-      },
     },
   });
 

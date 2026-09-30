@@ -8,7 +8,7 @@ This guide is written specifically for our **~30 student developers and team lea
 
 ## 1. Golden Rules for All Contributors
 
-1. **Never Push Directly to `main` or `master`**: Always create a feature branch for your task and open a Pull Request (PR) for your Team Leader to review.
+1. **Never Push Directly to `main`!** Always branch off of and merge into `dev-branch`. Create a feature branch for your task and open a Pull Request (PR) against `dev-branch` for your Team Leader to review.
 2. **Respect Workspace Ownership Boundaries**:
    - **`packages/db`**, **`packages/env`**, and **`packages/config`** are foundational packages managed by **Team 1 Leads**. If Team 2 or Team 3 needs a new database field or schema change, coordinate with a Team 1 Lead rather than editing `schema.prisma` unannounced.
    - **Zero Public Registration**: Never add a public `/signup` or `/register-user` endpoint for Students or Teachers. All campus accounts are provisioned via Department Admin CSV import (`mustChangePassword: true`).
@@ -31,14 +31,18 @@ This guide is written specifically for our **~30 student developers and team lea
 
 ## 3. Step-by-Step Backend Feature Workflow (`apps/server`)
 
-To make backend development easy to learn and consistent across all 30 developers, every module inside `apps/server/src/modules/<module-name>/` contains **4 files**:
+To make backend development easy to learn and consistent across all 30 developers, every module inside `apps/server/src/modules/<module-name>/` contains **4 folders**:
 
 ```text
 apps/server/src/modules/clubs/
-├── clubs.routes.ts        # 1. Express Router + Auth/Role Middleware Guards
-├── clubs.validators.ts    # 2. Zod Request Schemas (params, query, body)
-├── clubs.controllers.ts   # 3. HTTP Request/Response handling (calls Service)
-└── clubs.services.ts      # 4. Business logic & Prisma/MongoDB queries
+├── routes/
+│   └── clubs.routes.ts        # 1. Express Router + Auth/Role Middleware Guards
+├── validators/
+│   └── clubs.validators.ts    # 2. Zod Request Schemas (params, query, body)
+├── controllers/
+│   └── clubs.controllers.ts   # 3. HTTP Request/Response handling (calls Service)
+└── services/
+    └── clubs.services.ts      # 4. Business logic & Prisma/MongoDB queries
 ```
 
 ### Layer 1: `*.validators.ts` (Zod Input Validation)
@@ -131,6 +135,11 @@ Every API endpoint in `apps/server` **must** return this exact JSON shape so `ap
 ---
 
 ## 5. Git Branching & Pull Request Conventions
+
+### The `dev-branch` Workflow
+- **`main` is protected.** Never push directly to `main`!
+- All active development happens against the **`dev-branch`**.
+- Branch off of `dev-branch` to create your feature branch, and open your Pull Request strictly against `dev-branch`.
 
 ### Branch Naming
 Always name your branch with your team number and feature type:

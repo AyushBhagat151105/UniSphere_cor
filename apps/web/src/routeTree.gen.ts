@@ -10,11 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthActivateRouteImport } from './routes/_auth/activate'
+import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as TestIndexRouteImport } from './routes/test/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthActivateRoute = AuthActivateRouteImport.update({
+  id: '/_auth/activate',
+  path: '/activate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/_auth/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TestIndexRoute = TestIndexRouteImport.update({
@@ -25,27 +37,35 @@ const TestIndexRoute = TestIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/activate': typeof AuthActivateRoute
+  '/login': typeof AuthLoginRoute
   '/test/': typeof TestIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/activate': typeof AuthActivateRoute
+  '/login': typeof AuthLoginRoute
   '/test': typeof TestIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_auth/activate': typeof AuthActivateRoute
+  '/_auth/login': typeof AuthLoginRoute
   '/test/': typeof TestIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/test/'
+  fullPaths: '/' | '/activate' | '/login' | '/test/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/test'
-  id: '__root__' | '/' | '/test/'
+  to: '/' | '/activate' | '/login' | '/test'
+  id: '__root__' | '/' | '/_auth/activate' | '/_auth/login' | '/test/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthActivateRoute: typeof AuthActivateRoute
+  AuthLoginRoute: typeof AuthLoginRoute
   TestIndexRoute: typeof TestIndexRoute
 }
 
@@ -56,6 +76,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/activate': {
+      id: '/_auth/activate'
+      path: '/activate'
+      fullPath: '/activate'
+      preLoaderRoute: typeof AuthActivateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/login': {
+      id: '/_auth/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/test/': {
@@ -70,6 +104,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthActivateRoute: AuthActivateRoute,
+  AuthLoginRoute: AuthLoginRoute,
   TestIndexRoute: TestIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -68,8 +68,6 @@ registerRoute(
   logoutController
 );
 
-export default router;
-
 registerRoute(
   router,
   {
@@ -111,3 +109,5 @@ registerRoute(
   requireAuth,
   meController
 );
+
+export default router;

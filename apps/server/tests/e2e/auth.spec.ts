@@ -114,14 +114,17 @@ describe("E2E Auth Flow", () => {
     const revokedToken = refreshTokenCookie;
     
     // First refresh to rotate it
-    await request(app)
+    const r1 = await request(app)
       .post("/api/v1/auth/refresh")
       .send({ refreshToken: revokedToken });
-      
+
     // Try refreshing again with the old token
     const failRes = await request(app)
       .post("/api/v1/auth/refresh")
       .send({ refreshToken: revokedToken });
+
+    console.log("R1 STATUS:", r1.status, r1.body);
+    console.log("FAIL STATUS:", failRes.status, failRes.body);
 
     expect(failRes.status).toBe(401);
     expect(failRes.body.success).toBe(false);

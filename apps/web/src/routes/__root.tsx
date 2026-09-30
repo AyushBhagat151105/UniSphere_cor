@@ -1,3 +1,5 @@
+import type { QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
@@ -7,7 +9,9 @@ import { Toaster } from "@/components/ui/sonner";
 
 import "../index.css";
 
-export type RouterAppContext = Record<string, never>;
+export type RouterAppContext = {
+  queryClient: QueryClient;
+};
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
@@ -49,6 +53,7 @@ function RootComponent() {
       </ThemeProvider>
 
       <TanStackRouterDevtools position="bottom-left" />
+      <ReactQueryDevtools buttonPosition="bottom-right" />
     </>
   );
 }

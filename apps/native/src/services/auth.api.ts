@@ -1,9 +1,9 @@
 import { httpClient, setTokens, clearTokens } from "../lib/http-client";
 import { z } from "zod";
-import type { 
-  loginBodySchema, 
-  activateAccountBodySchema 
-} from "../../../server/src/modules/auth/validators/auth.validators";
+import type {
+  loginBodySchema,
+  activateAccountBodySchema
+} from "@UniSphere_cor/schemas";
 
 type LoginInput = z.infer<typeof loginBodySchema>;
 type ActivateInput = z.infer<typeof activateAccountBodySchema>;

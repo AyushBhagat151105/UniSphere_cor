@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 // Let's hardcode fallbacks here to prevent breakage if not defined locally yet
 const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret";
 const REFRESH_SECRET = process.env.REFRESH_SECRET || "default_refresh_secret";
+import crypto from "crypto";
 
 export async function loginService(input: any, userAgent: string, ipAddress: string) {
   const user = await prisma.user.findUnique({
@@ -23,10 +24,10 @@ export async function loginService(input: any, userAgent: string, ipAddress: str
 
   // Generate Tokens
   const accessToken = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: "15m" });
-  const refreshToken = jwt.sign({ id: user.id }, REFRESH_SECRET, { expiresIn: "7d" });
+  const refreshToken = jwt.sign({ id: user.id, jti: crypto.randomUUID() }, REFRESH_SECRET, { expiresIn: "7d" });
 
   // Hash the refresh token to store in the DB (for multi-device revocation safety)
-  const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+  const refreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
 
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7);
@@ -96,7 +97,7 @@ export async function logoutService(refreshToken: string) {
   const sessions = await prisma.userSession.findMany({ where: { userId: payload.id } });
   
   for (const session of sessions) {
-    const isMatch = await bcrypt.compare(refreshToken, session.refreshTokenHash);
+    const isMatch = crypto.createHash('sha256').update(refreshToken).digest('hex') === session.refreshTokenHash;
     if (isMatch) {
       await prisma.userSession.delete({ where: { id: session.id } });
     }
@@ -118,7 +119,7 @@ export async function refreshService(refreshToken: string, userAgent: string, ip
   
   let validSessionId: string | null = null;
   for (const session of sessions) {
-    const isMatch = await bcrypt.compare(refreshToken, session.refreshTokenHash);
+    const isMatch = crypto.createHash('sha256').update(refreshToken).digest('hex') === session.refreshTokenHash;
     if (isMatch) {
       if (session.expiresAt < new Date()) {
         await prisma.userSession.delete({ where: { id: session.id } });
@@ -140,8 +141,8 @@ export async function refreshService(refreshToken: string, userAgent: string, ip
 
   // Generate new tokens
   const newAccessToken = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: "15m" });
-  const newRefreshToken = jwt.sign({ id: user.id }, REFRESH_SECRET, { expiresIn: "7d" });
-  const newRefreshTokenHash = await bcrypt.hash(newRefreshToken, 10);
+  const newRefreshToken = jwt.sign({ id: user.id, jti: crypto.randomUUID() }, REFRESH_SECRET, { expiresIn: "7d" });
+  const newRefreshTokenHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
 
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7);

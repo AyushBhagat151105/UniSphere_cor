@@ -4,6 +4,9 @@ import { StatusBar } from "expo-status-bar";
 import React, { useRef } from "react";
 import { Platform, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 import { MobileUIProvider } from "@/components/mobile-ui-provider";
 import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
@@ -61,17 +64,19 @@ export default function RootLayout() {
 
   return (
     <>
-      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-        <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-        <GestureHandlerRootView style={styles.container}>
-          <MobileUIProvider>
-            <Stack>
-              <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-              <Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
-            </Stack>
-          </MobileUIProvider>
-        </GestureHandlerRootView>
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+          <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+          <GestureHandlerRootView style={styles.container}>
+            <MobileUIProvider>
+              <Stack>
+                <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+                <Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
+              </Stack>
+            </MobileUIProvider>
+          </GestureHandlerRootView>
+        </ThemeProvider>
+      </QueryClientProvider>
     </>
   );
 }

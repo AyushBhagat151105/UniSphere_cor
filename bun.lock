@@ -21,6 +21,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@UniSphere_cor/env": "workspace:*",
+        "@UniSphere_cor/schemas": "workspace:*",
         "@babel/runtime": "^7.26.0",
         "@expo/vector-icons": "^15.1.1",
         "@react-navigation/bottom-tabs": "^7.19.2",
@@ -53,6 +54,7 @@
         "motion": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "react-hook-form": "^7.89.0",
         "react-native": "^0.86.2",
         "react-native-gesture-handler": "^3.3.0",
         "react-native-reanimated": "^4.5.3",
@@ -77,6 +79,7 @@
       "dependencies": {
         "@UniSphere_cor/db": "workspace:*",
         "@UniSphere_cor/env": "workspace:*",
+        "@UniSphere_cor/schemas": "workspace:*",
         "@asteasolutions/zod-to-openapi": "^9.1.0",
         "@opentelemetry/api": "^1.9.1",
         "@opentelemetry/auto-instrumentations-node": "0.78.0",
@@ -123,6 +126,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@UniSphere_cor/env": "workspace:*",
+        "@UniSphere_cor/schemas": "workspace:*",
         "@base-ui/react": "^1.8.0",
         "@fontsource-variable/inter": "^5.3.0",
         "@hookform/resolvers": "^5.9.1",
@@ -142,6 +146,7 @@
         "radix-ui": "^1.6.7",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "react-hook-form": "^7.89.0",
         "shadcn": "^4.19.0",
         "socket.io-client": "catalog:",
         "sonner": "^2.0.8",
@@ -205,6 +210,18 @@
         "typescript": "catalog:",
       },
     },
+    "packages/schemas": {
+      "name": "@UniSphere_cor/schemas",
+      "version": "0.0.0",
+      "dependencies": {
+        "@asteasolutions/zod-to-openapi": "^9.1.0",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@UniSphere_cor/config": "workspace:*",
+        "typescript": "catalog:",
+      },
+    },
   },
   "catalog": {
     "@prisma/client": "6.19.0",
@@ -231,6 +248,8 @@
     "@UniSphere_cor/db": ["@UniSphere_cor/db@workspace:packages/db"],
 
     "@UniSphere_cor/env": ["@UniSphere_cor/env@workspace:packages/env"],
+
+    "@UniSphere_cor/schemas": ["@UniSphere_cor/schemas@workspace:packages/schemas"],
 
     "@adobe/css-tools": ["@adobe/css-tools@4.5.0", "", {}, "sha512-6OzddxPio9UiWTCemp4N8cYLV2ZN1ncRnV1cVGtve7dhPOtRkleRyx32GQCYSwDYgaHU3USMm84tNsvKzRCa1Q=="],
 
@@ -2332,7 +2351,7 @@
 
     "react-freeze": ["react-freeze@1.0.4", "", { "peerDependencies": { "react": ">=17.0.0" } }, "sha512-r4F0Sec0BLxWicc7HEyo2x3/2icUTrRmDjaaRyzzn+7aDyFZliszMDOgLVwSnQnYENOlL1o569Ze2HZefk8clA=="],
 
-    "react-hook-form": ["react-hook-form@7.88.0", "", { "peerDependencies": { "react": "^16.8.0 || ^17 || ^18 || ^19" } }, "sha512-QRaLOWhX93YCnMiRfnOFRSwWXZNt8qhm2JTZwypoDvKpSffTJHmpzMXt8U6PV5UThvL3IiiLDUWe2nHMtz6Mmw=="],
+    "react-hook-form": ["react-hook-form@7.89.0", "", { "peerDependencies": { "@types/react": "*", "react": "^16.8.0 || ^17 || ^18 || ^19" }, "optionalPeers": ["@types/react"] }, "sha512-vKcoCfy8RKZDrhSdqsRFp0uEOdS1AhLjOL6hR7Wmfzg1akNxEhaPf5WORx8SgEQPVXakdDyDkqQp+KNxVnnPHg=="],
 
     "react-is": ["react-is@19.3.0", "", {}, "sha512-UpMYezM4v5/18F28aC66AEsjXIgE02kyEMH6yLdgLXu/UTfa1Ntwck/nNLrbqJsEXW7gPb0coNO9FQse9WTovA=="],
 

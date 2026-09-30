@@ -1,0 +1,18 @@
+{
+  "name": "@UniSphere_cor/schemas",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^9.1.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@UniSphere_cor/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

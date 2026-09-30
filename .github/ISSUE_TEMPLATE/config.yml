@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: CHARUSAT Dev Club Support
+    url: https://github.com/charusat-dev-club
+    about: Please ask questions in our internal team channels first before opening issues.

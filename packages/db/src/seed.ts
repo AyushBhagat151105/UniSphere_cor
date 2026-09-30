@@ -38,7 +38,7 @@ async function seed() {
     },
   });
 
-  const ddu = await prisma.university.upsert({
+  await prisma.university.upsert({
     where: { code: "DDU" },
     update: {
       name: "Dharmsinh Desai University",

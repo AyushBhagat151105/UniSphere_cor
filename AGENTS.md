@@ -13,7 +13,7 @@ This file provides authoritative architectural, domain, and workflow rules for A
 Always consult these specifications before modifying database schemas, routes, or UI screens:
 
 - **[`README.md`](./README.md)** — Project overview, 3-logo institutional header (`assets/`), quickstart, and local MongoDB setup.
-- **[`CONTRIBUTING.md`](./CONTRIBUTING.md)** — Beginner-friendly 4-layer Express workflow (`routes -> validators -> controllers -> services`), standardized JSON response envelope, and Git conventions for ~30 developers across 3 teams.
+- **[`CONTRIBUTING.md`](./CONTRIBUTING.md)** — Beginner-friendly 4-layer Express workflow (nested `routes/`, `validators/`, `controllers/`, and `services/` folders), automatic Scalar OpenAPI generation via Zod, standardized JSON response envelope, and Git conventions (always use `dev-branch`) for ~30 developers across 3 teams.
 - **[`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)** — End-to-end system architecture, 5-tier RBAC, `ClubCoAdminGuard`, 3-scope event visibility engine, multi-device `UserSession`, and `<150ms` HMAC-SHA256 QR Gate Scanner flows.
 - **[`docs/DB_MODELS.md`](./docs/DB_MODELS.md)** — Complete field-by-field schema and index reference for all **12 MongoDB collections** (`packages/db`).
 - **[`docs/API_SPEC.md`](./docs/API_SPEC.md)** — Exhaustive reference for all **63 REST API endpoints** under `/api/v1` across 10 modules (`apps/server`).
@@ -47,8 +47,9 @@ Always consult these specifications before modifying database schemas, routes, o
 ## 3. Tech Stack & Architecture Pattern
 
 - **Runtime & Package Manager**: `bun` + `turborepo`
-- **Backend (`apps/server`)**: Express 5 + TypeScript + Zod + Socket.IO + BullMQ + Redis + Nodemailer + Cloudinary + Winston + OpenTelemetry.
-  - Follow the **4-Layer Backend Pattern**: `*.routes.ts -> *.validators.ts -> *.controllers.ts -> *.services.ts`.
+- **Backend (`apps/server`)**: Express 5 + TypeScript + Zod + Socket.IO + BullMQ + Redis + Nodemailer + Cloudinary + Winston + OpenTelemetry + Scalar Docs (`@scalar/express-api-reference`).
+  - Follow the **4-Layer Backend Pattern**: Inside each module folder (e.g. `src/modules/auth`), place files into nested subfolders: `routes/`, `validators/`, `controllers/`, and `services/`.
+  - Use `registerRoute` from `src/utils/routeBuilder.ts` to automatically generate OpenAPI documentation via Zod schemas.
 - **Web (`apps/web`)**: React 19 + TanStack Router + TanStack Query + Tailwind CSS + shadcn/ui + Zustand + Framer Motion + React Hook Form + Recharts + SheetJS (`xlsx`).
 - **Mobile (`apps/native`)**: React Native (Expo Router) + Expo Camera (QR Scanner) + Expo Image + Expo Notifications.
 - **Database (`packages/db`)**: MongoDB 8.0 (`mongo:8.0.4` with `GLIBC_TUNABLES: "glibc.pthread.rseq=0"` for Linux kernel 6.19+ compatibility) + Prisma ORM (`packages/db/prisma/schema.prisma`).
@@ -76,8 +77,11 @@ UniSphere_cor/
 
 ---
 
-## 5. Common Commands
+## 5. Common Commands & Git Workflow
 
+- **Git Workflow**: Never push to `main`. Branch off of the **`dev-branch`** and open PRs against `dev-branch`.
+
+**Useful Commands:**
 - `bun install` — Install dependencies across all workspaces
 - `bun run --filter @UniSphere_cor/db db:start` — Start local MongoDB 8.0 container (`UniSphere_cor-mongodb`)
 - `bun run db:generate` — Generate Prisma client

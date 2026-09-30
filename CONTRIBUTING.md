@@ -87,14 +87,31 @@ export async function createClubController(req: Request, res: Response, next: Ne
 }
 ```
 
-### Layer 4: `*.routes.ts` (Express Routes & RBAC Guards)
-Attach authentication, role guards (`requireRole`, `requireClubCoAdmin`), and Zod validation middleware:
+### Layer 4: `*.routes.ts` (Express Routes, OpenAPI Specs, & RBAC Guards)
+Instead of standard `router.post()`, we use `registerRoute` to automatically mount the documentation logic directly to Scalar via our Zod schemas, while still handling authentication and validation parameters predictably:
 ```typescript
-router.post(
-  "/",
+import { registerRoute } from "../../utils/routeBuilder";
+
+registerRoute(
+  router,
+  {
+    method: "post",
+    path: "/api/v1/clubs", 
+    summary: "Create a new Campus Club",
+    tags: ["Clubs"],
+    security: "bearer",
+    request: {
+      body: createClubBodySchema
+    },
+    responses: {
+      "201": {
+        description: "Campus club created successfully",
+        schema: createClubResponseSchema 
+      }
+    }
+  },
   requireAuth,
   requireRole(["TEACHER", "DEPARTMENT_ADMIN", "UNIVERSITY_ADMIN"]),
-  validateRequest({ body: createClubBodySchema }),
   createClubController
 );
 ```

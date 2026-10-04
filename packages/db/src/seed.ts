@@ -403,7 +403,7 @@ async function seed() {
     },
   });
 
-  const drawingClub = await prisma.club.create({
+  await prisma.club.create({
     data: {
       universityId: charusat.id,
       departmentId: cmpica.id,

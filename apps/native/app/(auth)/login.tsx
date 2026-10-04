@@ -14,8 +14,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const colorScheme = useColorScheme() ?? "light";
-  const theme = NAV_THEME[colorScheme];
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === "dark" ? NAV_THEME.dark : NAV_THEME.light;
 
   const handleLogin = async () => {
     try {

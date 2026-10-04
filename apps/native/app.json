@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.betterfullstack.unisphere_cor"
+      "bundleIdentifier": "com.betterfullstack.unispherecor"
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +20,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.betterfullstack.unisphere_cor"
+      "package": "com.betterfullstack.unispherecor"
     },
     "web": {
       "output": "static",

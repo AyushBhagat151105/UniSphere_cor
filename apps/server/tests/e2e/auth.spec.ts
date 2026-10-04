@@ -39,8 +39,10 @@ describe("E2E Auth Flow", () => {
   });
 
   afterAll(async () => {
-    await prisma.userSession.deleteMany({ where: { userId: testUser.id } });
-    await prisma.user.deleteMany({ where: { id: testUser.id } });
+    if (testUser?.id) {
+      await prisma.userSession.deleteMany({ where: { userId: testUser.id } });
+      await prisma.user.deleteMany({ where: { id: testUser.id } });
+    }
   });
 
   it("should fail login with old password when mustChangePassword is true", async () => {

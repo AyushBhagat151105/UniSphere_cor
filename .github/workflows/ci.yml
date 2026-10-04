@@ -11,16 +11,6 @@ jobs:
     name: Lint, Type Check, Build & E2E Test
     runs-on: ubuntu-latest
 
-    # Setup a background MongoDB service for database operations in CI
-    services:
-      mongodb:
-        image: mongo:8.0.4
-        ports:
-          - 27017:27017
-        env:
-          MONGO_INITDB_ROOT_USERNAME: root
-          MONGO_INITDB_ROOT_PASSWORD: password
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,6 +22,14 @@ jobs:
 
       - name: Install dependencies
         run: bun install
+
+      - name: Start MongoDB Replica Set
+        run: |
+          bun run --filter @UniSphere_cor/db db:start
+          until docker exec UniSphere_cor-mongodb mongosh -u root -p password --authenticationDatabase admin --quiet --eval "try { rs.status().ok } catch(e) { 0 }" | grep -q 1; do
+            echo "Waiting for MongoDB replica set..."
+            sleep 2
+          done
 
       - name: Execute Prisma Push to initialize test DB
         run: bun run --filter @UniSphere_cor/db db:push --accept-data-loss

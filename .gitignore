@@ -51,3 +51,7 @@ temp
 # Better Fullstack recovery snapshots
 .bts/recovery
 
+# Knowledge graph artifacts
+graphify-out/
+
+

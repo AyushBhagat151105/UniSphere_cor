@@ -185,3 +185,44 @@ bun run test
 # 3. Verify production build succeeds
 bun run build
 ```
+
+---
+
+## 6. Developer Environment & Local Setup Rules
+
+### 6.1 VS Code Recommended Setup
+Open the project in VS Code and accept the prompt to install recommended workspace extensions (or install them via `.vscode/extensions.json`):
+- **Prisma** (`Prisma.prisma`): Syntax highlighting and formatting for `.prisma` models.
+- **Tailwind CSS IntelliSense** (`bradlc.vscode-tailwindcss`): Auto-complete for Tailwind utility classes and `cn()` helpers.
+- **Prettier** (`esbenp.prettier-vscode`): Standardized code formatting on save.
+- **Pretty TypeScript Errors** (`yoavbls.pretty-ts-errors`): Human-readable TypeScript diagnostics for beginner devs.
+- **Thunder Client / REST Client** (`rangav.vscode-thunder-client`): In-editor REST API testing.
+
+### 6.2 Initial Environment Setup
+Copy the example environment files for each app and package before starting development:
+```bash
+# Server environment (Express API)
+cp apps/server/.env.example apps/server/.env
+
+# Web environment (React portal)
+cp apps/web/.env.example apps/web/.env
+
+# Native mobile environment (Expo app)
+cp apps/native/.env.example apps/native/.env
+```
+
+### 6.3 Local Database & Services Quickstart
+```bash
+# 1. Start local MongoDB 8.0 replica set
+bun run db:start
+
+# 2. Generate Prisma Client
+bun run db:generate
+
+# 3. Push schema to MongoDB
+bun run db:push
+
+# 4. Optional: Seed initial demo data
+bun run db:seed
+```
+

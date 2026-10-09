@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+echo "🔍 Running pre-commit type-check across all workspaces..."
+bun run check-types
+
+echo "🧪 Running tests..."
+bun run test

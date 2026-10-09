@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "Prisma.prisma",
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "turborepo.turbo-vscode",
+    "yoavbls.pretty-ts-errors",
+    "formulahendry.auto-rename-tag",
+    "streetsidesoftware.code-spell-checker",
+    "eamodio.gitlens",
+    "rangav.vscode-thunder-client"
+  ]
+}

@@ -44,7 +44,8 @@
     "db:stop": "turbo -F @UniSphere_cor/db db:stop",
     "db:down": "turbo -F @UniSphere_cor/db db:down",
     "test": "bun run --filter web test && bun run --filter server test",
-    "ruler:apply": "bunx @intellectronica/ruler@latest apply --local-only"
+    "ruler:apply": "bunx @intellectronica/ruler@latest apply --local-only",
+    "prepare": "husky"
   },
   "dependencies": {
     "@UniSphere_cor/env": "workspace:*",
@@ -54,6 +55,7 @@
   "devDependencies": {
     "@UniSphere_cor/config": "workspace:*",
     "@types/bun": "catalog:",
+    "husky": "^9.1.7",
     "turbo": "2.10.11",
     "typescript": "catalog:"
   },
